@@ -740,7 +740,6 @@ function hexToRgba(hex,alpha){
 }
 const MONTHS_ES=['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
 const MONTHS_FULL=['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
-const DEFAULT_PIN='1234';
 
 let services=[], logEntries=[], filterFrom=null, filterTo=null;
 let editingSvcId=null, editingLogId=null;
@@ -861,31 +860,30 @@ function setupChartTooltip(canvas){
 let svcHistFilter='all';
 let heroMonthKey=null; // null = mes en curso. Si se selecciona un mes en Historial, queda fijado acá.
 
-// ── STORAGE ──
-function save(){
-  try{
-    localStorage.setItem('diem_services',JSON.stringify(services));
-    localStorage.setItem('diem_log',JSON.stringify(logEntries));
-  }catch(e){}
+// ── STORAGE (backed by Postgres via the API, not localStorage) ──
+let appSettings={};
+async function apiFetch(url,opts){
+  const res=await fetch(url,{credentials:'include',headers:{'Content-Type':'application/json'},...opts});
+  if(!res.ok){const err=new Error('http_'+res.status);err.status=res.status;throw err;}
+  return res.status===204?null:res.json();
 }
-function getSetting(k,def){try{const v=localStorage.getItem('diem_'+k);return v!==null?v:def;}catch(e){return def;}}
-function setSetting(k,v){try{localStorage.setItem('diem_'+k,v);}catch(e){}}
-function getPin(){return getSetting('pin',DEFAULT_PIN);}
-
-function load(){
+async function persist(){
   try{
-    const sv=localStorage.getItem('diem_services');
-    const lv=localStorage.getItem('diem_log');
-    const updated=localStorage.getItem('diem_svc_v2')==='1';
-    if(!updated||!sv){
-      services=JSON.parse(JSON.stringify(DEFAULT_SERVICES));
-      localStorage.setItem('diem_svc_v2','1');
-    } else {
-      services=JSON.parse(sv);
-    }
-    logEntries=lv?JSON.parse(lv):[];
-    save();
-  }catch(e){services=JSON.parse(JSON.stringify(DEFAULT_SERVICES));logEntries=[];}
+    await apiFetch('/api/state',{method:'PUT',body:JSON.stringify({services,logEntries,settings:appSettings})});
+  }catch(e){
+    console.error('save failed',e);
+    toast('No se pudo guardar en el servidor');
+  }
+}
+function save(){persist();}
+function getSetting(k,def){const v=appSettings[k];return v!==undefined&&v!==null?v:def;}
+function setSetting(k,v){appSettings[k]=v;save();}
+
+async function load(){
+  const data=await apiFetch('/api/state');
+  services=data.services||[];
+  logEntries=data.logEntries||[];
+  appSettings=data.settings||{};
 }
 
 // ── UTILS ──
@@ -933,25 +931,29 @@ function filteredEntries(){
 }
 
 // ── LOGIN ──
-function initLogin(){
-  const name=getSetting('barber_name','Mi Barbería');
-  const logo=getSetting('logo_data','');
+async function initLogin(){
+  const branding=await apiFetch('/api/branding').catch(()=>({}));
+  const name=branding.barber_name||'Mi Barbería';
+  const logo=branding.logo_data||'';
   document.getElementById('login-name-el').textContent=name;
   const el=document.getElementById('login-logo-el');
   if(logo){el.innerHTML='<img src="'+logo+'" style="width:100%;height:100%;object-fit:cover;border-radius:50%">';}
   else{el.innerHTML='';el.textContent=name.slice(0,2).toUpperCase();}
-  if(!localStorage.getItem('diem_pin_set'))document.getElementById('login-hint').textContent='Primera vez: PIN por defecto es 1234';
+  document.getElementById('login-hint').textContent=branding.pin_is_default==='1'?'Primera vez: PIN por defecto es 1234':'';
   pinBuffer='';updatePinDots();
   document.getElementById('login-error').textContent='';
 }
 function pinKey(d){if(pinBuffer.length>=4)return;pinBuffer+=d;updatePinDots();if(pinBuffer.length===4)setTimeout(checkPin,120);}
 function pinDel(){pinBuffer=pinBuffer.slice(0,-1);updatePinDots();document.getElementById('login-error').textContent='';document.querySelectorAll('.pin-dot').forEach(d=>d.classList.remove('error'));}
 function updatePinDots(){for(let i=0;i<4;i++){const d=document.getElementById('pd'+i);d.classList.toggle('filled',i<pinBuffer.length);d.classList.remove('error');}}
-function checkPin(){
-  if(pinBuffer===getPin()){
+async function checkPin(){
+  const pin=pinBuffer;
+  let ok=false;
+  try{await apiFetch('/api/login',{method:'POST',body:JSON.stringify({pin})});ok=true;}catch(e){ok=false;}
+  if(ok){
+    await load();
     document.getElementById('login-screen').style.display='none';
     document.getElementById('main-app').style.display='block';
-    localStorage.setItem('diem_pin_set','1');
     renderAll();
   } else {
     document.querySelectorAll('.pin-dot').forEach(d=>{d.classList.add('error','filled');});
@@ -959,17 +961,21 @@ function checkPin(){
     setTimeout(()=>{pinBuffer='';updatePinDots();document.getElementById('login-error').textContent='';},900);
   }
 }
-function lockApp(){document.getElementById('main-app').style.display='none';document.getElementById('login-screen').style.display='flex';initLogin();}
+function lockApp(){apiFetch('/api/logout',{method:'POST'}).catch(()=>{});document.getElementById('main-app').style.display='none';document.getElementById('login-screen').style.display='flex';initLogin();}
 function openChangePinModal(){['pin-current','pin-new','pin-confirm'].forEach(id=>document.getElementById(id).value='');document.getElementById('pin-change-error').textContent='';openModal('modal-pin');}
-function savePin(){
+async function savePin(){
   const cur=document.getElementById('pin-current').value;
   const nw=document.getElementById('pin-new').value;
   const conf=document.getElementById('pin-confirm').value;
   const err=document.getElementById('pin-change-error');
-  if(cur!==getPin()){err.textContent='El PIN actual es incorrecto';return;}
   if(!/^\d{4}$/.test(nw)){err.textContent='El nuevo PIN debe tener exactamente 4 dígitos';return;}
   if(nw!==conf){err.textContent='Los PINs no coinciden';return;}
-  setSetting('pin',nw);closeModal('modal-pin');toast('PIN actualizado ✓');
+  try{
+    await apiFetch('/api/change-pin',{method:'POST',body:JSON.stringify({oldPin:cur,newPin:nw})});
+    closeModal('modal-pin');toast('PIN actualizado ✓');
+  }catch(e){
+    err.textContent='El PIN actual es incorrecto';
+  }
 }
 
 // ── TABS ──
@@ -1033,7 +1039,7 @@ function saveSvc(){
   save();closeModal('modal-svc');renderAll();
 }
 function deleteSvc(id){showConfirm('¿Eliminar este servicio?',()=>{services=services.filter(s=>s.id!==id);save();renderAll();toast('Servicio eliminado');},{type:'danger'});}
-function resetServices(){showConfirm('¿Restablecer los servicios a la lista original?',()=>{services=JSON.parse(JSON.stringify(DEFAULT_SERVICES));localStorage.setItem('diem_svc_v2','1');save();renderAll();toast('Servicios restablecidos ✓');},{type:'confirm'});}
+function resetServices(){showConfirm('¿Restablecer los servicios a la lista original?',()=>{services=JSON.parse(JSON.stringify(DEFAULT_SERVICES));save();renderAll();toast('Servicios restablecidos ✓');},{type:'confirm'});}
 function renderCatalog(){
   const el=document.getElementById('catalog-list');
   if(!services.length){el.innerHTML='<div class="empty"><i class="ti ti-scissors"></i><p>Agregá tu primer servicio</p></div>';return;}
@@ -1713,7 +1719,6 @@ function processImportData(data){
 
       logEntries=[...logEntries,...newEntries];
 
-      localStorage.setItem('diem_svc_v2','1');
       save();renderAll();
       toast(newEntries.length+' registro'+(newEntries.length!==1?'s':'')+' añadidos ✓');
     },{type:'add'});
@@ -1787,7 +1792,6 @@ function processImportData(data){
       logEntries=[...logEntries,...toAdd];
 
       if(data.barbero)setSetting('barber_name',data.barbero);
-      localStorage.setItem('diem_svc_v2','1');
       save();renderAll();
 
       let msg=toAdd.length+' registro'+(toAdd.length!==1?'s':'')+' importados ✓';
@@ -1975,7 +1979,7 @@ function renderAll(){
 }
 
 // ── INIT ──
-load();
+// load() ahora requiere sesión iniciada (se llama desde checkPin() tras el login).
 initLogin();
 
 // Registrar service worker: hace que la app funcione sin internet después de

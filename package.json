@@ -1,0 +1,28 @@
+{
+  "name": "diem_system",
+  "version": "1.0.0",
+  "description": "",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/diembarbershop2016-lab/Diem_system.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/diembarbershop2016-lab/Diem_system/issues"
+  },
+  "homepage": "https://github.com/diembarbershop2016-lab/Diem_system#readme",
+  "dependencies": {
+    "bcryptjs": "^3.0.3",
+    "cookie-session": "^2.1.1",
+    "express": "^5.2.1",
+    "pg": "^8.22.0"
+  }
+}
