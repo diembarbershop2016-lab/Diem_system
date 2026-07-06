@@ -1,0 +1,2812 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#1A1916">
+<title>DIEM Barber – PC</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.19.0/dist/tabler-icons.min.css">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --gold:#C9A84C;--gold-bg:#FBF5E4;--gold-text:#7A5E10;
+  --ink:#1A1916;--ink2:#3D3B36;--ink3:#7A7870;
+  --bg:#F0EFE9;--card:#FFFFFF;
+  --border:rgba(26,25,22,.08);--border2:rgba(26,25,22,.15);
+  --red:#C0392B;--red-bg:#FEF0EE;
+  --r:12px;--r-sm:8px;--shadow:0 1px 4px rgba(0,0,0,.07);
+}
+html,body{height:100%}
+body{font-family:'Space Grotesk',sans-serif;background:#E4E2D8;color:var(--ink);-webkit-font-smoothing:antialiased;min-height:100dvh}
+.app{max-width:640px;margin:0 auto;background:var(--bg);min-height:100dvh;box-shadow:0 0 60px rgba(0,0,0,.08);position:relative}
+.app, .app *{cursor:default}
+button, .nav-tab, .btn, .pin-key, .month-row, .swatch, .view-toggle-btn, .log-del, .review-check, .review-del-btn, [onclick]{cursor:pointer}
+.btn:hover, .nav-tab:hover, .pin-key:hover, .period-btn:hover, .lock-btn:hover{filter:brightness(1.06)}
+.month-row:hover{background:rgba(26,25,22,.03)}
+
+/* LOGIN */
+.login-screen{position:fixed;inset:0;background:var(--ink);z-index:999;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:32px 24px}
+.login-logo{width:120px;height:120px;background:var(--gold);border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'Space Mono',monospace;font-weight:700;font-size:30px;color:var(--ink);margin-bottom:16px;overflow:hidden;flex-shrink:0;box-shadow:0 0 0 4px rgba(201,168,76,.35),0 4px 24px rgba(0,0,0,.5)}
+.login-logo img{width:100%;height:100%;object-fit:cover;border-radius:20px}
+.login-name{font-size:22px;font-weight:700;color:#fff;margin-bottom:4px;text-align:center}
+.login-sub{font-size:12px;color:rgba(255,255,255,.3);margin-bottom:36px;text-align:center}
+.pin-display{display:flex;gap:14px;margin-bottom:32px}
+.pin-dot{width:16px;height:16px;border-radius:50%;border:2px solid rgba(255,255,255,.2);transition:all .15s}
+.pin-dot.filled{background:var(--gold);border-color:var(--gold)}
+.pin-dot.error{background:var(--red);border-color:var(--red)}
+.pin-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;width:100%;max-width:280px}
+.pin-key{height:66px;border-radius:14px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.1);font-family:'Space Grotesk',sans-serif;font-size:22px;font-weight:600;color:#fff;cursor:pointer;transition:all .1s;display:flex;align-items:center;justify-content:center}
+.pin-key:active{background:rgba(255,255,255,.18);transform:scale(.95)}
+.pin-key.del{font-size:18px;color:rgba(255,255,255,.45)}
+.pin-key.empty{background:transparent;border:none;cursor:default}
+.login-error{font-size:12px;color:var(--red);margin-top:16px;min-height:18px;text-align:center}
+.login-hint{font-size:11px;color:rgba(255,255,255,.2);margin-top:10px;text-align:center}
+
+/* HEADER */
+.header{background:var(--ink);padding:16px 16px 0;padding-top:calc(14px + env(safe-area-inset-top))}
+.hdr-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
+.hdr-brand{display:flex;align-items:center;gap:10px}
+.hdr-mark{width:32px;height:32px;background:var(--gold);border-radius:8px;display:flex;align-items:center;justify-content:center;font-family:'Space Mono',monospace;font-weight:700;font-size:11px;color:var(--ink);overflow:hidden;flex-shrink:0}
+.hdr-mark img{width:100%;height:100%;object-fit:cover;border-radius:8px}
+.hdr-name{font-size:15px;font-weight:700;color:#fff}
+.hdr-sub-txt{font-size:10px;color:rgba(255,255,255,.32);letter-spacing:.5px;text-transform:uppercase;margin-top:1px}
+.hdr-right{display:flex;align-items:center;gap:8px}
+.period-btn{font-size:11px;color:rgba(255,255,255,.5);background:rgba(255,255,255,.07);padding:5px 11px;border-radius:20px;border:1px solid rgba(255,255,255,.1);cursor:pointer;font-family:inherit;white-space:nowrap;display:flex;align-items:center;gap:5px}
+.period-btn i{font-size:13px}
+.lock-btn{width:30px;height:30px;border-radius:8px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.1);color:rgba(255,255,255,.4);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:15px}
+
+/* HERO */
+.hero-card{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);border-bottom:none;border-radius:14px 14px 0 0;padding:16px 16px 18px}
+.hero-label{font-size:10px;color:rgba(255,255,255,.35);letter-spacing:1px;text-transform:uppercase;margin-bottom:5px}
+.hero-amount{font-family:'Space Mono',monospace;font-size:28px;font-weight:700;color:var(--gold);letter-spacing:-1px;line-height:1}
+.hero-sub{font-size:11px;color:rgba(255,255,255,.25);margin-top:5px}
+.hero-nav{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:10px}
+.hero-nav .btn-icon{background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12);color:rgba(255,255,255,.7)}
+.hero-nav .btn-icon i{color:var(--gold)}
+.hero-nav .btn-icon:active{transform:scale(.92)}
+.hero-tip{font-size:10px;color:rgba(255,255,255,.4);margin-top:3px;font-family:'Space Mono',monospace}
+.hero-stats{display:grid;grid-template-columns:1fr 1fr 1fr;margin-top:14px;border-top:1px solid rgba(255,255,255,.07);padding-top:12px}
+.hstat{text-align:center}
+.hstat+.hstat{border-left:1px solid rgba(255,255,255,.07)}
+.hstat-v{font-size:15px;font-weight:700;color:#fff;font-family:'Space Mono',monospace}
+.hstat-l{font-size:9px;color:rgba(255,255,255,.28);margin-top:3px;letter-spacing:.3px;text-transform:uppercase}
+
+/* MODAL */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:100;display:none;align-items:center;justify-content:center;padding:24px}
+.modal-overlay.open{display:flex}
+.modal{background:var(--card);border-radius:16px;padding:20px;width:100%;max-width:520px;max-height:88dvh;overflow-y:auto;box-shadow:0 16px 50px rgba(0,0,0,.25)}
+.modal-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
+.modal-title{font-size:15px;font-weight:700}
+.modal-close{width:30px;height:30px;border-radius:50%;background:var(--bg);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:15px;color:var(--ink3)}
+
+/* TABS */
+.nav-tabs{display:flex;background:var(--card);border-bottom:1px solid var(--border);overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;position:sticky;top:0;z-index:10;box-shadow:0 2px 8px rgba(0,0,0,.07)}
+.nav-tabs::-webkit-scrollbar{display:none}
+.nav-tab{flex:none;display:flex;flex-direction:column;align-items:center;gap:3px;padding:10px 12px;min-height:52px;cursor:pointer;border:none;background:none;font-family:inherit;color:var(--ink3);border-bottom:2px solid transparent;transition:color .15s,border-color .15s;white-space:nowrap;min-width:52px}
+.nav-tab i{font-size:18px;line-height:1}
+.nav-tab span{font-size:10px;font-weight:600;letter-spacing:.4px;text-transform:uppercase}
+.nav-tab.active{color:var(--ink);border-bottom-color:var(--gold)}
+.nav-tab.active i{color:var(--gold-text)}
+
+/* CONTENT */
+.content{padding:14px 12px 40px;display:flex;flex-direction:column;gap:10px}
+.view{display:none}
+.view.active{display:flex;flex-direction:column;gap:10px}
+
+/* CARDS */
+.card{background:var(--card);border:1px solid var(--border);border-radius:var(--r);overflow:hidden;box-shadow:var(--shadow)}
+.card-hdr{padding:12px 14px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center}
+.card-title{font-size:13px;font-weight:600;color:var(--ink)}
+.card-sub{font-size:11px;color:var(--ink3)}
+.card-body{padding:12px 14px}
+
+/* KPI */
+.g2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.kpi{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:13px 14px;box-shadow:var(--shadow);min-height:76px}
+.kpi.gold{background:var(--gold-bg);border-color:rgba(201,168,76,.25)}
+.kpi-l{font-size:10px;color:var(--ink3);text-transform:uppercase;letter-spacing:.6px;margin-bottom:5px;font-weight:500}
+.kpi-v{font-size:21px;font-weight:700;color:var(--ink);letter-spacing:-.5px;font-family:'Space Mono',monospace;line-height:1.1}
+.kpi.gold .kpi-v{color:var(--gold-text)}
+.kpi-s{font-size:11px;color:var(--ink3);margin-top:4px}
+
+/* BUTTONS */
+.btn{display:inline-flex;align-items:center;gap:6px;padding:9px 16px;border-radius:var(--r-sm);font-family:inherit;font-size:13px;font-weight:600;cursor:pointer;border:none;transition:opacity .15s}
+.btn:active{opacity:.8}
+.btn-primary{background:var(--ink);color:#fff}
+.btn-gold{background:var(--gold);color:var(--ink)}
+.btn-ghost{background:var(--bg);color:var(--ink2);border:1px solid var(--border2)}
+.btn-danger{background:var(--red-bg);color:var(--red);border:1px solid rgba(192,57,43,.2)}
+.btn-success{background:#E6F5EC;color:#1A6E3A;border:1px solid rgba(26,110,58,.2)}
+.btn-sm{padding:6px 12px;font-size:12px}
+.btn-icon{width:34px;height:34px;padding:0;border-radius:8px;justify-content:center;flex-shrink:0}
+.btn-full{width:100%;justify-content:center}
+.btn i{font-size:15px}
+
+/* FORM */
+.form-group{display:flex;flex-direction:column;gap:5px;margin-bottom:13px}
+.form-group:last-child{margin-bottom:0}
+.form-label{font-size:11px;font-weight:600;color:var(--ink2);text-transform:uppercase;letter-spacing:.5px}
+.form-input{width:100%;padding:10px 13px;border:1px solid var(--border2);border-radius:var(--r-sm);font-family:inherit;font-size:14px;color:var(--ink);background:var(--bg);outline:none;transition:border-color .15s}
+.form-input:focus{border-color:var(--gold);background:#fff}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.form-select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%237A7870' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center;padding-right:32px}
+.form-hint{font-size:11px;color:var(--ink3);margin-top:2px}
+
+/* CATALOG ITEMS */
+.svc-catalog-item{display:flex;align-items:center;gap:10px;padding:11px 14px;border-bottom:1px solid var(--border)}
+.svc-catalog-item:last-child{border-bottom:none}
+.svc-color-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
+.svc-name{flex:1;font-size:13px;font-weight:500;color:var(--ink)}
+.svc-price{font-size:13px;font-weight:700;font-family:'Space Mono',monospace;color:var(--gold-text)}
+.svc-actions{display:flex;gap:6px}
+
+/* LOG ITEMS */
+.log-item{display:flex;align-items:center;gap:10px;padding:11px 14px;border-bottom:1px solid var(--border)}
+.log-item:last-child{border-bottom:none}
+.log-time{font-size:11px;font-weight:700;font-family:'Space Mono',monospace;color:var(--ink3);min-width:34px;flex-shrink:0}
+.log-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.log-info{flex:1;min-width:0}
+.log-svc-name{font-size:13px;font-weight:600;color:var(--ink);line-height:1.2}
+.log-svc-date{font-size:11px;color:var(--ink3);margin-top:2px}
+.log-note-txt{font-size:11px;color:var(--ink3);margin-top:1px;font-style:italic}
+.log-price{font-size:13px;font-weight:700;font-family:'Space Mono',monospace;color:var(--ink);flex-shrink:0}
+.log-del{width:28px;height:28px;border-radius:6px;background:none;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--ink3);transition:all .15s;flex-shrink:0}
+.log-del:hover{background:var(--red-bg);color:var(--red)}
+.log-day-header{padding:11px 14px;font-size:12px;font-weight:700;color:#fff;text-transform:capitalize;letter-spacing:.2px;background:var(--ink);display:flex;justify-content:space-between;align-items:center;margin-top:4px}
+.log-day-header:first-child{margin-top:0}
+.log-day-meta{font-size:11px;color:rgba(255,255,255,.55);display:flex;align-items:center;gap:6px}
+.log-day-total{font-family:'Space Mono',monospace;font-size:12px;color:var(--gold);font-weight:700}
+.log-day-header.empty{background:rgba(26,25,22,.4);color:rgba(255,255,255,.4)}
+.log-day-header.empty .log-day-meta{color:rgba(255,255,255,.3)}
+.log-day-header.empty .log-day-total{color:rgba(255,255,255,.35)}
+.log-week-total{display:flex;justify-content:space-between;align-items:center;padding:10px 14px;background:var(--gold-bg);border-top:2px solid var(--gold);border-radius:0 0 var(--r) var(--r);font-size:12px;font-weight:700;color:var(--gold-text);margin-bottom:10px;box-shadow:var(--shadow)}
+
+/* SERVICE HISTORY (grouped by day / jornada) */
+.svc-hist-day-header{padding:14px 14px 8px;background:var(--ink);display:flex;justify-content:space-between;align-items:baseline;margin-top:4px}
+.svc-hist-day-header:first-child{margin-top:0}
+.svc-hist-day-label{font-size:12px;font-weight:700;color:#fff;text-transform:capitalize;letter-spacing:.2px}
+.svc-hist-day-meta{font-size:11px;color:rgba(255,255,255,.55)}
+.svc-hist-day-meta strong{color:var(--gold);font-family:'Space Mono',monospace;font-weight:700}
+.svc-hist-item{display:flex;align-items:center;gap:10px;padding:11px 14px;border-bottom:1px solid var(--border);border-left:3px solid transparent;transition:background .15s,border-color .15s}
+.svc-hist-item.selected{background:rgba(201,168,76,.20)!important;border-left-color:var(--gold)}
+.svc-hist-item.selected .svc-hist-name{color:var(--gold-text)}
+.svc-hist-item:last-child{border-bottom:none}
+.svc-hist-datetime{flex-shrink:0;text-align:right;min-width:46px}
+.svc-hist-date{font-size:10px;font-weight:700;color:var(--ink3);font-family:'Space Mono',monospace}
+.svc-hist-time{font-size:11px;color:var(--ink3);font-family:'Space Mono',monospace}
+.svc-hist-time-big{font-size:13px;font-weight:700;color:var(--ink2);font-family:'Space Mono',monospace}
+.svc-hist-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.svc-hist-info{flex:1;min-width:0}
+.svc-hist-name{font-size:13px;font-weight:600;color:var(--ink)}
+.svc-hist-note{font-size:11px;color:var(--ink3);margin-top:1px;font-style:italic}
+.svc-hist-price{font-size:13px;font-weight:700;font-family:'Space Mono',monospace;color:var(--ink);flex-shrink:0}
+.svc-hist-actions{display:flex;gap:4px;flex-shrink:0}
+
+/* MONTH ROWS */
+.month-row{display:flex;align-items:center;gap:8px;padding:11px 0;border-bottom:1px solid var(--border)}
+.month-row:last-child{border-bottom:none}
+.month-name{font-size:13px;font-weight:600;color:var(--ink);min-width:70px}
+.month-cnt{font-size:11px;color:var(--ink3);min-width:50px}
+.month-track{flex:1;height:5px;background:var(--border);border-radius:3px;overflow:hidden}
+.month-fill{height:100%;border-radius:3px}
+.month-val{font-size:13px;font-weight:700;font-family:'Space Mono',monospace;color:var(--gold-text);min-width:72px;text-align:right}
+
+/* STAT ROW */
+.stat-row{display:flex;justify-content:space-between;align-items:center;padding:9px 0;border-bottom:1px solid var(--border);font-size:13px}
+.stat-row:last-child{border-bottom:none}
+.stat-k{color:var(--ink3)}
+.stat-v{font-weight:700;color:var(--ink);font-family:'Space Mono',monospace;font-size:12px}
+.stat-v.gold{color:var(--gold-text)}
+
+/* SETTING ROW */
+.setting-row{display:flex;align-items:center;justify-content:space-between;padding:12px 14px;border-bottom:1px solid var(--border)}
+.setting-row:last-child{border-bottom:none}
+.setting-label{font-size:13px;font-weight:500;color:var(--ink)}
+.setting-sub{font-size:11px;color:var(--ink3);margin-top:2px}
+
+/* LOGO UPLOAD */
+.logo-upload-wrap{width:96px;flex-shrink:0}
+.logo-upload-box{width:96px;height:96px;border-radius:50%;background:var(--gold-bg);border:2px dashed rgba(201,168,76,.5);cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;overflow:hidden;position:relative;transition:border-color .15s}
+.logo-upload-box:hover{border-color:var(--gold)}
+.logo-upload-box img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.logo-upload-box .logo-icon{font-size:24px;color:var(--gold-text);z-index:1}
+.logo-upload-box .logo-txt{font-size:9px;color:var(--gold-text);font-weight:600;text-transform:uppercase;z-index:1}
+.logo-upload-hint{text-align:center;margin-top:6px;font-size:10px;color:var(--ink3)}
+
+/* INSIGHT */
+.insight{background:var(--gold-bg);border:1px solid rgba(201,168,76,.22);border-radius:var(--r);padding:14px 15px}
+.insight-hdr{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+.insight-hdr i{font-size:17px;color:var(--gold-text)}
+.insight-hdr span{font-size:11px;font-weight:700;color:var(--gold-text);text-transform:uppercase;letter-spacing:.5px}
+.insight p{font-size:12px;color:var(--ink2);line-height:1.7}
+.insight strong{color:var(--ink);font-weight:600}
+
+/* FILTER */
+.filter-bar{display:flex;align-items:center;gap:8px}
+.filter-date{flex:1;padding:8px 12px;border:1px solid var(--border2);border-radius:var(--r-sm);font-family:'Space Mono',monospace;font-size:12px;color:var(--ink);background:var(--bg);outline:none}
+.filter-date:focus{border-color:var(--gold)}
+.filter-sep{font-size:12px;color:var(--ink3);flex-shrink:0}
+.filter-apply{padding:8px 13px;border-radius:var(--r-sm);background:var(--ink);color:var(--gold);border:none;font-family:inherit;font-size:12px;font-weight:700;cursor:pointer}
+
+/* SWATCHES */
+.swatch-row{display:flex;gap:8px;flex-wrap:wrap}
+.swatch{width:26px;height:26px;border-radius:50%;cursor:pointer;border:2px solid transparent;transition:transform .1s}
+.swatch.selected{border-color:var(--ink);transform:scale(1.15)}
+
+/* VIEW TOGGLE */
+.view-toggle{display:flex;background:var(--bg);border-radius:var(--r-sm);padding:3px;gap:2px;border:1px solid var(--border)}
+.view-toggle-btn{flex:1;padding:5px 10px;border:none;background:none;border-radius:6px;font-family:inherit;font-size:11px;font-weight:600;color:var(--ink3);cursor:pointer;transition:all .15s}
+.view-toggle-btn.active{background:var(--card);color:var(--ink);box-shadow:0 1px 3px rgba(0,0,0,.08)}
+
+/* FAB */
+.fab-group{position:fixed;bottom:calc(24px + env(safe-area-inset-bottom));right:max(16px, calc(50% - 320px + 16px));z-index:50;display:flex;flex-direction:column;align-items:center;gap:10px}
+.fab:hover, .fab-secondary:hover{filter:brightness(1.08)}
+.fab{width:52px;height:52px;border-radius:50%;background:var(--ink);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 16px rgba(0,0,0,.25);transition:transform .15s}
+.fab:active{transform:scale(.94)}
+.fab i{font-size:22px;color:var(--gold)}
+.fab-secondary{width:42px;height:42px;background:var(--card);border:1px solid var(--border2)}
+.fab-secondary i{font-size:18px;color:var(--ink2)}
+
+/* EMPTY */
+.empty{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:36px 20px;text-align:center;gap:10px;color:var(--ink3)}
+.empty i{font-size:36px;opacity:.25}
+.empty p{font-size:13px}
+
+/* TOAST */
+.toast{position:fixed;bottom:calc(84px + env(safe-area-inset-bottom));left:50%;transform:translateX(-50%) translateY(10px);background:var(--ink);color:#fff;padding:10px 18px;border-radius:20px;font-size:13px;font-weight:500;opacity:0;transition:all .3s;z-index:300;white-space:nowrap;pointer-events:none}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+/* BADGE */
+.badge{display:inline-flex;align-items:center;padding:2px 8px;border-radius:20px;font-size:10px;font-weight:700}
+.badge-gold{background:var(--gold-bg);color:var(--gold-text)}
+
+/* PHOTO CAPTURE */
+.photo-preview-wrap{width:100%;border-radius:var(--r);overflow:hidden;background:var(--bg);border:1px solid var(--border);margin-bottom:14px;position:relative}
+.photo-preview-wrap img{width:100%;max-height:280px;object-fit:contain;display:block;background:#000}
+.photo-capture-empty{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:48px 20px;gap:14px;border:2px dashed rgba(201,168,76,.4);border-radius:var(--r);background:var(--gold-bg);cursor:pointer}
+.photo-capture-empty i{font-size:40px;color:var(--gold-text)}
+.photo-capture-empty span{font-size:13px;font-weight:600;color:var(--gold-text)}
+.photo-capture-empty small{font-size:11px;color:var(--ink3)}
+.photo-actions{display:flex;gap:8px;margin-bottom:14px}
+.photo-capture-choice{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.photo-choice-btn{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;padding:28px 10px;border:2px dashed rgba(201,168,76,.4);border-radius:var(--r);background:var(--gold-bg);cursor:pointer;font-family:inherit;transition:all .15s}
+.photo-choice-btn:active{transform:scale(.97);background:rgba(201,168,76,.18)}
+.photo-choice-btn i{font-size:30px;color:var(--gold-text)}
+.photo-choice-btn span{font-size:12px;font-weight:600;color:var(--gold-text)}
+
+/* AI PROCESSING STATE */
+.ai-processing{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:40px 20px;gap:14px;text-align:center}
+.ai-spinner{width:40px;height:40px;border-radius:50%;border:3px solid var(--border2);border-top-color:var(--gold);animation:spin 0.8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.ai-processing-text{font-size:13px;font-weight:600;color:var(--ink)}
+.ai-processing-sub{font-size:11px;color:var(--ink3)}
+
+/* REVIEW ROWS (extracted entries pending confirmation) */
+.review-row{display:flex;align-items:flex-start;gap:10px;padding:12px 14px;border-bottom:1px solid var(--border)}
+.review-row:last-child{border-bottom:none}
+.review-row.excluded{opacity:.4}
+.review-check{width:22px;height:22px;border-radius:50%;border:2px solid var(--gold);background:var(--gold);display:flex;align-items:center;justify-content:center;flex-shrink:0;cursor:pointer;margin-top:2px;transition:all .15s}
+.review-check.off{background:transparent;border-color:var(--border2)}
+.review-check i{font-size:12px;color:var(--ink);font-weight:900}
+.review-fields{flex:1;display:flex;flex-direction:column;gap:6px}
+.review-fields-row{display:flex;gap:6px}
+.review-input{flex:1;padding:6px 9px;border:1px solid var(--border2);border-radius:6px;font-family:inherit;font-size:12px;background:var(--bg);outline:none}
+.review-input:focus{border-color:var(--gold)}
+.review-input.price{font-family:'Space Mono',monospace;max-width:90px}
+.review-input.date{max-width:110px;font-family:'Space Mono',monospace;font-size:11px}
+.review-input.time{max-width:70px;font-family:'Space Mono',monospace;font-size:11px}
+.review-select{flex:2}
+.review-del-btn{width:28px;height:28px;border-radius:6px;background:none;border:none;cursor:pointer;color:var(--ink3);flex-shrink:0;display:flex;align-items:center;justify-content:center;margin-top:2px}
+.review-del-btn:hover{background:var(--red-bg);color:var(--red)}
+.review-summary{padding:10px 14px;background:var(--gold-bg);display:flex;justify-content:space-between;align-items:center;font-size:12px;font-weight:600;color:var(--gold-text)}
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div class="login-screen" id="login-screen">
+  <div class="login-logo" id="login-logo-el">DM</div>
+  <div class="login-name" id="login-name-el">Mi Barbería</div>
+  <div class="login-sub">Ingresá tu PIN para continuar</div>
+  <div class="pin-display">
+    <div class="pin-dot" id="pd0"></div><div class="pin-dot" id="pd1"></div>
+    <div class="pin-dot" id="pd2"></div><div class="pin-dot" id="pd3"></div>
+  </div>
+  <div class="pin-grid">
+    <button class="pin-key" onclick="pinKey('1')">1</button>
+    <button class="pin-key" onclick="pinKey('2')">2</button>
+    <button class="pin-key" onclick="pinKey('3')">3</button>
+    <button class="pin-key" onclick="pinKey('4')">4</button>
+    <button class="pin-key" onclick="pinKey('5')">5</button>
+    <button class="pin-key" onclick="pinKey('6')">6</button>
+    <button class="pin-key" onclick="pinKey('7')">7</button>
+    <button class="pin-key" onclick="pinKey('8')">8</button>
+    <button class="pin-key" onclick="pinKey('9')">9</button>
+    <div class="pin-key empty"></div>
+    <button class="pin-key" onclick="pinKey('0')">0</button>
+    <button class="pin-key del" onclick="pinDel()"><i class="ti ti-backspace"></i></button>
+  </div>
+  <div class="login-error" id="login-error"></div>
+  <div class="login-hint" id="login-hint"></div>
+</div>
+
+<!-- MAIN APP -->
+<div class="app" id="main-app" style="display:none">
+
+<div class="header">
+  <!-- Top bar: period + lock -->
+  <div class="hdr-top" style="margin-bottom:0">
+    <div style="flex:1"></div>
+    <div class="hdr-right">
+      <button class="period-btn" onclick="openPeriodModal()"><i class="ti ti-calendar-event"></i><span id="period-label">Todo</span></button>
+      <button class="lock-btn" onclick="lockApp()"><i class="ti ti-lock"></i></button>
+    </div>
+  </div>
+
+  <!-- Logo centrado grande -->
+  <div style="display:flex;flex-direction:column;align-items:center;padding:10px 0 6px">
+    <div id="hdr-logo-wrap" style="width:110px;height:110px;border-radius:50%;overflow:hidden;background:var(--gold);display:flex;align-items:center;justify-content:center;box-shadow:0 0 0 3px rgba(201,168,76,.4),0 4px 20px rgba(0,0,0,.5);flex-shrink:0">
+      <div id="hdr-mark-el" style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-family:'Space Mono',monospace;font-weight:700;font-size:28px;color:var(--ink)">DM</div>
+    </div>
+    <div style="margin-top:10px;text-align:center">
+      <div class="hdr-name" id="hdr-name-el" style="font-size:18px;letter-spacing:.5px">Mi Barbería</div>
+      <div class="hdr-sub-txt" id="hdr-sub-el" style="font-size:11px;margin-top:2px">Barbero independiente</div>
+    </div>
+  </div>
+
+  <!-- Hero card -->
+  <div class="hero-card" style="margin-top:10px">
+    <div class="hero-nav">
+      <button class="btn btn-ghost btn-icon" id="hero-prev-btn" onclick="shiftHeroMonth(-1)" title="Mes anterior"><i class="ti ti-chevron-left"></i></button>
+      <div style="flex:1;min-width:0;text-align:center">
+        <div class="hero-label" id="hero-label" style="margin-bottom:0">Ganancia del mes</div>
+        <div class="hero-tip" id="hero-tip">Propinas: $0</div>
+      </div>
+      <button class="btn btn-ghost btn-icon" id="hero-next-btn" onclick="shiftHeroMonth(1)" title="Mes siguiente"><i class="ti ti-chevron-right"></i></button>
+    </div>
+    <div style="display:flex;gap:14px;align-items:flex-start">
+      <div style="flex:1;min-width:0">
+        <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;justify-content:center">
+          <button id="hero-back-current" onclick="selectHeroMonth(null)" style="display:none;font-size:9px;color:var(--gold);background:rgba(201,168,76,.12);border:1px solid rgba(201,168,76,.3);border-radius:20px;padding:2px 8px;cursor:pointer;font-family:inherit;letter-spacing:.3px">Ver mes actual</button>
+        </div>
+        <div class="hero-amount" id="hero-total">$0</div>
+        <div class="hero-sub" id="hero-sub">0 servicios · 0 jornadas</div>
+      </div>
+      <div id="hero-last3" style="flex-shrink:0;display:flex;flex-direction:column;gap:6px;min-width:84px;padding-top:2px"></div>
+    </div>
+    <div class="hero-stats">
+      <div class="hstat"><div class="hstat-v" id="hs-svcs">0</div><div class="hstat-l">servicios</div></div>
+      <div class="hstat"><div class="hstat-v" id="hs-avg-day">$0</div><div class="hstat-l">prom/día</div></div>
+      <div class="hstat"><div class="hstat-v" id="hs-avg-svc">$0</div><div class="hstat-l">por svc</div></div>
+    </div>
+    <div id="hero-record" style="display:none;margin-top:12px;padding-top:12px;border-top:1px solid rgba(255,255,255,.07);justify-content:space-between;align-items:center">
+      <span style="font-size:10px;color:rgba(255,255,255,.4);text-transform:uppercase;letter-spacing:.5px;display:flex;align-items:center;gap:5px"><i class="ti ti-trophy" style="font-size:13px;color:var(--gold)"></i>Récord a romper</span>
+      <span id="hero-record-v" style="font-size:12px;font-family:'Space Mono',monospace;font-weight:700;color:var(--gold)">$0</span>
+    </div>
+  </div>
+</div>
+
+<div class="nav-tabs" role="tablist">
+  <button class="nav-tab active" onclick="sw('resumen',this)"><i class="ti ti-chart-bar"></i><span>Resumen</span></button>
+  <button class="nav-tab" onclick="sw('registro',this)"><i class="ti ti-list-check"></i><span>Registro</span></button>
+  <button class="nav-tab" onclick="sw('servicios',this)"><i class="ti ti-clock-record"></i><span>Realizados</span></button>
+  <button class="nav-tab" onclick="sw('catalogo',this)"><i class="ti ti-scissors"></i><span>Servicios</span></button>
+  <button class="nav-tab" onclick="sw('historial',this)"><i class="ti ti-calendar-month"></i><span>Historial</span></button>
+  <button class="nav-tab" onclick="sw('propinas',this)"><i class="ti ti-cash"></i><span>Propinas</span></button>
+  <button class="nav-tab" onclick="sw('clientes',this)"><i class="ti ti-users"></i><span>Clientes</span></button>
+  <button class="nav-tab" onclick="sw('ajustes',this)"><i class="ti ti-settings"></i><span>Ajustes</span></button>
+</div>
+
+<div class="content">
+
+  <!-- RESUMEN -->
+  <div id="v-resumen" class="view active">
+    <div class="g2">
+      <div class="kpi gold"><div class="kpi-l">Total ganado</div><div class="kpi-v" id="kpi-total">$0</div><div class="kpi-s" id="kpi-period-s">período</div></div>
+      <div class="kpi"><div class="kpi-l">Servicios</div><div class="kpi-v" id="kpi-svcs">0</div><div class="kpi-s" id="kpi-days-s">0 jornadas</div></div>
+    </div>
+    <div class="g2">
+      <div class="kpi"><div class="kpi-l">Mejor día</div><div class="kpi-v" id="kpi-best-day" style="font-size:14px;line-height:1.2">—</div><div class="kpi-s" id="kpi-best-day-s">sin datos</div></div>
+      <div class="kpi"><div class="kpi-l">Ticket prom.</div><div class="kpi-v" id="kpi-ticket" style="font-size:16px">$0</div><div class="kpi-s">por servicio</div></div>
+    </div>
+    <div class="card">
+      <div class="card-hdr"><div class="card-title">Ganancia por día</div></div>
+      <div class="card-body" style="padding:10px"><div style="position:relative;width:100%;height:160px"><canvas id="c-daily"></canvas></div></div>
+    </div>
+    <div class="card">
+      <div class="card-hdr"><div class="card-title">Mix de servicios</div></div>
+      <div class="card-body" style="padding:0 14px" id="mix-list"><div class="empty"><i class="ti ti-scissors"></i><p>Sin registros todavía</p></div></div>
+    </div>
+    <div class="card">
+      <div class="card-hdr"><div class="card-title">Estadísticas</div></div>
+      <div class="card-body" style="padding:0 14px">
+        <div class="stat-row"><span class="stat-k">Promedio por día</span><span class="stat-v" id="stat-avg-day">$0</span></div>
+        <div class="stat-row"><span class="stat-k">Promedio por svc</span><span class="stat-v" id="stat-avg-svc">$0</span></div>
+        <div class="stat-row"><span class="stat-k">Mejor semana</span><span class="stat-v gold" id="stat-best-week">—</span></div>
+        <div class="stat-row"><span class="stat-k">Día con más servicios</span><span class="stat-v" id="stat-best-count">—</span></div>
+        <div class="stat-row"><span class="stat-k">Día más flojo</span><span class="stat-v" id="stat-worst-day">—</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- REGISTRO (por día agrupado) -->
+  <div id="v-registro" class="view">
+    <div class="card">
+      <div class="card-hdr"><div class="card-title">Filtrar período</div></div>
+      <div class="card-body">
+        <div class="filter-bar">
+          <input type="date" class="filter-date" id="filter-from">
+          <span class="filter-sep">→</span>
+          <input type="date" class="filter-date" id="filter-to">
+          <button class="filter-apply" onclick="applyFilter()">Ver</button>
+        </div>
+        <div style="margin-top:8px;display:flex;gap:6px;flex-wrap:wrap">
+          <button class="btn btn-ghost btn-sm" onclick="setQuick('today')">Hoy</button>
+          <button class="btn btn-ghost btn-sm" onclick="setQuick('yesterday')">Ayer</button>
+          <button class="btn btn-ghost btn-sm" onclick="setQuick('week')">Semana</button>
+          <button class="btn btn-ghost btn-sm" onclick="setQuick('month')">Mes</button>
+          <button class="btn btn-ghost btn-sm" onclick="setQuick('all')">Todo</button>
+        </div>
+      </div>
+    </div>
+    <div id="log-list"><div class="empty" style="padding:40px 20px"><i class="ti ti-list-check"></i><p>Registrá tu primer servicio con el botón +</p></div></div>
+  </div>
+
+  <!-- SERVICIOS REALIZADOS (lista completa con fecha+hora) -->
+  <div id="v-servicios" class="view">
+    <div class="card" style="overflow:visible">
+      <div class="card-hdr">
+        <div class="card-title">Servicios realizados</div>
+        <div class="view-toggle">
+          <button class="view-toggle-btn active" id="vt-all" onclick="setSvcView('all',this)">Todos</button>
+          <button class="view-toggle-btn" id="vt-today" onclick="setSvcView('today',this)">Hoy</button>
+          <button class="view-toggle-btn" id="vt-yesterday" onclick="setSvcView('yesterday',this)">Ayer</button>
+          <button class="view-toggle-btn" id="vt-week" onclick="setSvcView('week',this)">Semana</button>
+        </div>
+      </div>
+      <div id="svc-hist-filter" style="padding:10px 14px 0;display:flex;gap:8px;flex-wrap:wrap;align-items:center">
+        <select class="form-input form-select" id="svc-hist-filter-svc" style="flex:1;padding:7px 32px 7px 10px;font-size:12px" onchange="renderSvcHist()">
+          <option value="">Todos los servicios</option>
+        </select>
+      </div>
+      <div id="svc-hist-list" style="margin-top:8px"><div class="empty" style="padding:32px 20px"><i class="ti ti-clock-record"></i><p>Sin servicios registrados</p></div></div>
+    </div>
+  </div>
+
+  <!-- CATÁLOGO -->
+  <div id="v-catalogo" class="view">
+    <div class="insight">
+      <div class="insight-hdr"><i class="ti ti-info-circle"></i><span>Tus servicios</span></div>
+      <p>Definí tus servicios y precios. Al registrar un trabajo podés elegir cualquiera de ellos.</p>
+    </div>
+    <div class="card">
+      <div class="card-hdr"><div class="card-title">Catálogo</div><button class="btn btn-gold btn-sm" onclick="openSvcModal()"><i class="ti ti-plus"></i>Nuevo</button></div>
+      <div id="catalog-list"><div class="empty"><i class="ti ti-scissors"></i><p>Cargando…</p></div></div>
+    </div>
+  </div>
+
+  <!-- HISTORIAL MENSUAL -->
+  <div id="v-historial" class="view">
+    <div class="g2" style="grid-template-columns:repeat(3,minmax(0,1fr));gap:8px">
+      <div class="kpi gold"><div class="kpi-l">Mejor mes</div><div class="kpi-v" id="best-month-v" style="font-size:15px">—</div><div class="kpi-s" id="best-month-s">sin datos</div></div>
+      <div class="kpi"><div class="kpi-l">Prom. mensual</div><div class="kpi-v" id="avg-month-v" style="font-size:16px">$0</div><div class="kpi-s">últimos meses</div></div>
+      <div class="kpi"><div class="kpi-l">Mes más bajo</div><div class="kpi-v" id="worst-month-v" style="font-size:15px">—</div><div class="kpi-s" id="worst-month-s">sin datos</div></div>
+    </div>
+    <div class="card">
+      <div class="card-hdr"><div class="card-title">Ganancia por mes</div></div>
+      <div class="card-body" style="padding:10px"><div style="position:relative;width:100%;height:160px"><canvas id="c-monthly"></canvas></div></div>
+    </div>
+    <div class="card">
+      <div class="card-hdr"><div class="card-title">Detalle por mes</div></div>
+      <div class="card-body" style="padding:0 14px" id="month-rows"><div class="empty"><i class="ti ti-calendar-month"></i><p>Sin historial todavía</p></div></div>
+    </div>
+  </div>
+
+  <!-- PROPINAS -->
+  <div id="v-propinas" class="view">
+    <div class="g2" style="grid-template-columns:repeat(3,minmax(0,1fr));gap:8px">
+      <div class="kpi"><div class="kpi-l">Hoy</div><div class="kpi-v" id="tip-today-v" style="font-size:16px">$0</div><div class="kpi-s">propinas</div></div>
+      <div class="kpi gold"><div class="kpi-l">Este mes</div><div class="kpi-v" id="tip-month-v" style="font-size:16px">$0</div><div class="kpi-s">propinas</div></div>
+      <div class="kpi"><div class="kpi-l">Histórico</div><div class="kpi-v" id="tip-total-v" style="font-size:16px">$0</div><div class="kpi-s">total acumulado</div></div>
+    </div>
+    <div class="card">
+      <div class="card-hdr"><div class="card-title">Propinas por mes</div></div>
+      <div class="card-body" style="padding:0 14px" id="tip-month-rows"><div class="empty"><i class="ti ti-cash"></i><p>Sin propinas registradas todavía</p></div></div>
+    </div>
+    <div class="card" style="overflow:visible">
+      <div class="card-hdr"><div class="card-title">Detalle por día</div></div>
+      <div id="tip-day-list"><div class="empty" style="padding:32px 20px"><i class="ti ti-cash"></i><p>Sin propinas registradas todavía</p></div></div>
+    </div>
+  </div>
+
+  <!-- CLIENTES -->
+  <div id="v-clientes" class="view">
+    <div class="insight">
+      <div class="insight-hdr"><i class="ti ti-info-circle"></i><span>Cómo funciona</span></div>
+      <p>Se detecta al cliente a partir del texto que cargás en <strong>"Nota"</strong> al registrar un servicio. Cuanto más consistente sea el nombre que escribís, mejor va a agrupar sus visitas. <span id="clientes-detectados-s"></span></p>
+    </div>
+    <div class="card">
+      <div class="card-hdr"><div class="card-title"><i class="ti ti-crown" style="color:var(--gold-text);margin-right:5px"></i>Clientes Premium</div><div class="card-sub">los que más te generaron</div></div>
+      <div class="card-body" style="padding:0 14px" id="clientes-premium"><div class="empty"><i class="ti ti-users"></i><p>Todavía no hay suficientes datos</p></div></div>
+    </div>
+    <div class="card">
+      <div class="card-hdr"><div class="card-title"><i class="ti ti-repeat" style="color:var(--gold-text);margin-right:5px"></i>Clientes Frecuentes</div><div class="card-sub">vienen seguido</div></div>
+      <div class="card-body" style="padding:0 14px" id="clientes-frecuentes"><div class="empty"><i class="ti ti-users"></i><p>Todavía no hay suficientes datos</p></div></div>
+    </div>
+    <div class="card">
+      <div class="card-hdr"><div class="card-title"><i class="ti ti-user" style="color:var(--ink3);margin-right:5px"></i>Clientes Regulares</div><div class="card-sub">visitas ocasionales</div></div>
+      <div class="card-body" style="padding:0 14px" id="clientes-regulares"><div class="empty"><i class="ti ti-users"></i><p>Todavía no hay datos</p></div></div>
+    </div>
+  </div>
+
+  <!-- AJUSTES -->
+  <div id="v-ajustes" class="view">
+
+    <!-- Perfil -->
+    <div class="card">
+      <div class="card-hdr"><div class="card-title">Perfil de la barbería</div></div>
+      <div class="card-body">
+        <div style="display:flex;gap:16px;align-items:flex-start;margin-bottom:14px">
+          <div class="logo-upload-wrap">
+            <div class="logo-upload-box" id="logo-upload-box" onclick="triggerLogoInput()">
+              <img id="logo-preview-img" style="display:none">
+              <i class="ti ti-camera logo-icon" id="logo-upload-icon"></i>
+              <span class="logo-txt" id="logo-upload-txt">Logo</span>
+            </div>
+            <div class="logo-upload-hint">Tocá para cambiar</div>
+          </div>
+          <div style="flex:1">
+            <div class="form-group" style="margin-bottom:10px">
+              <label class="form-label">Nombre</label>
+              <input type="text" class="form-input" id="setting-name" placeholder="Ej: Emerson Barber">
+            </div>
+            <div class="form-group" style="margin-bottom:0">
+              <label class="form-label">Subtítulo</label>
+              <input type="text" class="form-input" id="setting-sub" placeholder="Ej: Barbero independiente">
+            </div>
+          </div>
+        </div>
+        <button class="btn btn-primary btn-full" onclick="saveProfile()"><i class="ti ti-check"></i>Guardar perfil</button>
+      </div>
+    </div>
+
+    <!-- Seguridad -->
+    <div class="card">
+      <div class="card-hdr"><div class="card-title">Seguridad</div></div>
+      <div class="setting-row">
+        <div><div class="setting-label">Cambiar PIN</div><div class="setting-sub">PIN de 4 dígitos para ingresar</div></div>
+        <button class="btn btn-ghost btn-sm" onclick="openChangePinModal()">Cambiar</button>
+      </div>
+    </div>
+
+    <!-- Datos: import / export / reset -->
+    <div class="card">
+      <div class="card-hdr"><div class="card-title">Datos</div></div>
+      <div class="setting-row">
+        <div><div class="setting-label">Exportar datos</div><div class="setting-sub">Descarga un archivo JSON con todo tu historial</div></div>
+        <button class="btn btn-success btn-sm" onclick="exportJSON()"><i class="ti ti-download"></i>Exportar</button>
+      </div>
+      <div class="setting-row">
+        <div><div class="setting-label">Importar datos</div><div class="setting-sub">Carga un archivo JSON o pegá el contenido</div></div>
+        <div style="display:flex;gap:6px">
+          <button class="btn btn-ghost btn-sm" onclick="triggerImport()"><i class="ti ti-upload"></i>Archivo</button>
+          <button class="btn btn-ghost btn-sm" onclick="openModal('modal-paste-json')"><i class="ti ti-clipboard"></i>Pegar</button>
+        </div>
+      </div>
+      <div class="setting-row">
+        <div><div class="setting-label">Restablecer servicios</div><div class="setting-sub">Vuelve a la lista original de 10 servicios</div></div>
+        <button class="btn btn-ghost btn-sm" onclick="resetServices()">Restablecer</button>
+      </div>
+      <div class="setting-row">
+        <div><div class="setting-label">Borrar todo el historial</div><div class="setting-sub">Elimina todos los registros permanentemente</div></div>
+        <button class="btn btn-danger btn-sm" onclick="clearAllLogs()">Borrar</button>
+      </div>
+    </div>
+
+  </div>
+
+</div><!-- /content -->
+</div><!-- /app -->
+
+<!-- Hidden file inputs -->
+<input type="file" id="logo-file-input" accept="image/*" style="display:none" onchange="handleLogoUpload(event)">
+<input type="file" id="import-file-input" accept=".json" style="display:none" onchange="handleImport(event)">
+
+<!-- SELECTION BAR -->
+<div id="sel-bar" style="display:none;position:fixed;bottom:calc(90px + env(safe-area-inset-bottom));left:50%;transform:translateX(-50%);background:var(--ink);border-radius:20px;padding:10px 12px 10px 18px;align-items:center;gap:12px;box-shadow:0 4px 20px rgba(0,0,0,.3);z-index:60;max-width:380px;width:calc(100% - 32px)">
+  <span id="sel-bar-count" style="font-size:13px;font-weight:600;color:#fff;flex:1">0 seleccionados</span>
+  <button onclick="deleteSelected()" style="background:var(--red);border:none;color:#fff;padding:8px 16px;border-radius:12px;font-family:inherit;font-size:13px;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:6px;white-space:nowrap"><i class="ti ti-trash" style="font-size:15px"></i>Eliminar</button>
+</div>
+
+<div class="fab-group">
+  <button class="fab fab-secondary" onclick="openTextImportModal()" title="Pegar transcripción"><i class="ti ti-clipboard-text"></i></button>
+  <button class="fab fab-secondary" onclick="openPhotoCaptureModal()" title="Escanear foto"><i class="ti ti-camera"></i></button>
+  <button class="fab" onclick="openLogModal()" title="Registrar servicio"><i class="ti ti-plus"></i></button>
+</div>
+<div class="toast" id="toast"></div>
+
+<!-- MODAL: PERIOD -->
+<div class="modal-overlay" id="modal-period">
+  <div class="modal">
+    <div class="modal-hdr"><div class="modal-title">Seleccionar período</div><button class="modal-close" onclick="closeModal('modal-period')">✕</button></div>
+    <div class="form-group"><label class="form-label">Desde</label><input type="date" class="form-input" id="period-from"></div>
+    <div class="form-group"><label class="form-label">Hasta</label><input type="date" class="form-input" id="period-to"></div>
+    <div style="display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap">
+      <button class="btn btn-ghost btn-sm" onclick="quickPeriod('today')">Hoy</button>
+      <button class="btn btn-ghost btn-sm" onclick="quickPeriod('yesterday')">Ayer</button>
+      <button class="btn btn-ghost btn-sm" onclick="quickPeriod('week')">Esta semana</button>
+      <button class="btn btn-ghost btn-sm" onclick="quickPeriod('month')">Este mes</button>
+      <button class="btn btn-ghost btn-sm" onclick="quickPeriod('last3')">Últimos 3 meses</button>
+      <button class="btn btn-ghost btn-sm" onclick="quickPeriod('year')">Este año</button>
+      <button class="btn btn-ghost btn-sm" onclick="quickPeriod('all')">Todo</button>
+    </div>
+    <div style="display:flex;gap:8px">
+      <button class="btn btn-ghost btn-full" onclick="closeModal('modal-period')">Cancelar</button>
+      <button class="btn btn-primary btn-full" onclick="applyPeriod()">Aplicar</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: LOG -->
+<div class="modal-overlay" id="modal-log">
+  <div class="modal">
+    <div class="modal-hdr"><div class="modal-title" id="log-modal-title">Registrar servicio</div><button class="modal-close" onclick="closeModal('modal-log')">✕</button></div>
+    <div class="form-row">
+      <div class="form-group"><label class="form-label">Fecha</label><input type="date" class="form-input" id="log-date"></div>
+      <div class="form-group"><label class="form-label">Hora</label><input type="time" class="form-input" id="log-time"></div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Servicio</label>
+      <select class="form-input form-select" id="log-svc-select"><option value="">— Elegí un servicio —</option></select>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Precio cobrado</label>
+      <input type="number" class="form-input" id="log-price" placeholder="0" min="0">
+      <div class="form-hint">Se completa automático al elegir el servicio</div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Propina</label>
+      <input type="number" class="form-input" id="log-tip" placeholder="0" min="0">
+      <div class="form-hint">Es opcional y se suma aparte en los totales.</div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Nota (opcional)</label>
+      <input type="text" class="form-input" id="log-note" placeholder="Ej: propina, cliente nuevo…">
+    </div>
+    <div style="display:flex;gap:8px;margin-top:4px">
+      <button class="btn btn-ghost btn-full" onclick="closeModal('modal-log')">Cancelar</button>
+      <button class="btn btn-primary btn-full" onclick="saveLog()"><i class="ti ti-check"></i>Guardar</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: SERVICE CATALOG -->
+<div class="modal-overlay" id="modal-svc">
+  <div class="modal">
+    <div class="modal-hdr"><div class="modal-title" id="svc-modal-title">Nuevo servicio</div><button class="modal-close" onclick="closeModal('modal-svc')">✕</button></div>
+    <div class="form-group"><label class="form-label">Nombre</label><input type="text" class="form-input" id="svc-name" placeholder="Ej: Corte Degradado"></div>
+    <div class="form-group"><label class="form-label">Precio base</label><input type="number" class="form-input" id="svc-price" placeholder="0" min="0"></div>
+    <div class="form-group"><label class="form-label">Duración (min)</label><input type="number" class="form-input" id="svc-duration" placeholder="30" min="5"></div>
+    <div class="form-group"><label class="form-label">Color</label><div class="swatch-row" id="swatch-row"></div></div>
+    <input type="hidden" id="svc-color-val" value="#1A1916">
+    <input type="hidden" id="svc-edit-id" value="">
+    <div style="display:flex;gap:8px;margin-top:8px">
+      <button class="btn btn-ghost btn-full" onclick="closeModal('modal-svc')">Cancelar</button>
+      <button class="btn btn-primary btn-full" onclick="saveSvc()"><i class="ti ti-check"></i>Guardar</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: CHANGE PIN -->
+<div class="modal-overlay" id="modal-pin">
+  <div class="modal">
+    <div class="modal-hdr"><div class="modal-title">Cambiar PIN</div><button class="modal-close" onclick="closeModal('modal-pin')">✕</button></div>
+    <div class="form-group"><label class="form-label">PIN actual</label><input type="password" class="form-input" id="pin-current" maxlength="4" inputmode="numeric" placeholder="••••"></div>
+    <div class="form-group"><label class="form-label">Nuevo PIN (4 dígitos)</label><input type="password" class="form-input" id="pin-new" maxlength="4" inputmode="numeric" placeholder="••••"></div>
+    <div class="form-group"><label class="form-label">Confirmar nuevo PIN</label><input type="password" class="form-input" id="pin-confirm" maxlength="4" inputmode="numeric" placeholder="••••"></div>
+    <div id="pin-change-error" style="font-size:12px;color:var(--red);min-height:16px;margin-bottom:8px"></div>
+    <div style="display:flex;gap:8px">
+      <button class="btn btn-ghost btn-full" onclick="closeModal('modal-pin')">Cancelar</button>
+      <button class="btn btn-primary btn-full" onclick="savePin()"><i class="ti ti-check"></i>Guardar PIN</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const DEFAULT_SERVICES=[
+  {id:'s1', name:'Corte Degradado',   price:6000, duration:30, color:'#1A1916'},
+  {id:'s2', name:'Corte Express',     price:5000, duration:20, color:'#2E86AB'},
+  {id:'s3', name:'Corte %',           price:5160, duration:25, color:'#7F5AF0'},
+  {id:'s4', name:'Corte + Barba',     price:10000,duration:45, color:'#C9A84C'},
+  {id:'s5', name:'Corte + Barba %',   price:8600, duration:40, color:'#E07B39'},
+  {id:'s6', name:'Corte + Perfilado', price:8000, duration:35, color:'#A23B72'},
+  {id:'s7', name:'Corte + Barba %%',  price:7500, duration:35, color:'#1A6E3A'},
+  {id:'s8', name:'Barba',             price:5000, duration:20, color:'#C0392B'},
+  {id:'s9', name:'Barba Perfilada',   price:3000, duration:15, color:'#6B6860'},
+  {id:'s10',name:'Perfilado',         price:2500, duration:10, color:'#B5A060'},
+];
+const COLORS=['#1A1916','#C9A84C','#2E86AB','#A23B72','#1A6E3A','#C0392B','#7F5AF0','#E07B39','#6B6860','#B5A060'];
+// Paleta usada en las barras de los gráficos (excluye el negro-tinta y el gris
+// apagado del catálogo, que no se leen bien como barra de gráfico).
+const CHART_PALETTE=['#C9A84C','#2E86AB','#7F5AF0','#E07B39','#1A6E3A','#A23B72','#C0392B','#B5A060'];
+function hexToRgba(hex,alpha){
+  const h=hex.replace('#','');
+  const r=parseInt(h.substring(0,2),16),g=parseInt(h.substring(2,4),16),b=parseInt(h.substring(4,6),16);
+  return `rgba(${r},${g},${b},${alpha})`;
+}
+const MONTHS_ES=['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
+const MONTHS_FULL=['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+const DEFAULT_PIN='1234';
+
+let services=[], logEntries=[], filterFrom=null, filterTo=null;
+let editingSvcId=null, editingLogId=null;
+let dailyChart=null, monthlyChart=null, pinBuffer='';
+
+// ── GRÁFICO DE BARRAS PROPIO (sin librerías externas → funciona 100% offline) ──
+// Reemplaza a Chart.js: mismo resultado visual, cero dependencia de internet.
+function drawBarChart(canvasId,labels,values,opts){
+  opts=opts||{};
+  const canvas=document.getElementById(canvasId);
+  if(!canvas)return;
+  const wrap=canvas.parentElement;
+  const cssW=wrap.clientWidth||300, cssH=wrap.clientHeight||160;
+  const dpr=window.devicePixelRatio||1;
+  canvas.width=cssW*dpr; canvas.height=cssH*dpr;
+  canvas.style.width=cssW+'px'; canvas.style.height=cssH+'px';
+  const ctx=canvas.getContext('2d');
+  ctx.setTransform(dpr,0,0,dpr,0,0);
+  ctx.clearRect(0,0,cssW,cssH);
+  if(!values.length)return;
+
+  const padL=34, padR=6, padT=8, padB=labels.some(l=>l&&l.length>4)?26:18;
+  const chartW=cssW-padL-padR, chartH=cssH-padT-padB;
+  const maxV=Math.max(...values,1);
+
+  // Líneas guía horizontales
+  ctx.strokeStyle='rgba(26,25,22,.06)'; ctx.lineWidth=1;
+  const gridLines=3;
+  for(let i=0;i<=gridLines;i++){
+    const y=padT+chartH-(chartH*i/gridLines);
+    ctx.beginPath();ctx.moveTo(padL,y);ctx.lineTo(cssW-padR,y);ctx.stroke();
+    const v=maxV*i/gridLines;
+    ctx.fillStyle='#7A7870';ctx.font='8px Space Mono, monospace';ctx.textAlign='right';ctx.textBaseline='middle';
+    ctx.fillText(fmtK(v),padL-5,y);
+  }
+
+  // Barras
+  const n=values.length;
+  const gap=n>20?1:(n>10?2:4);
+  const barW=Math.max(1,(chartW/n)-gap);
+  const highlightIdx=opts.highlightMax?values.indexOf(maxV):-1;
+  values.forEach((v,i)=>{
+    const bh=maxV>0?(v/maxV)*chartH:0;
+    const x=padL+i*(chartW/n)+((chartW/n)-barW)/2;
+    const y=padT+chartH-bh;
+    const isHi=(opts.highlightMax&&v===maxV&&maxV>0);
+    const baseColor=CHART_PALETTE[i%CHART_PALETTE.length];
+    ctx.fillStyle=hexToRgba(baseColor,isHi?.85:.55);
+    const r=Math.min(4,barW/2);
+    ctx.beginPath();
+    if(ctx.roundRect){ctx.roundRect(x,y,barW,Math.max(bh,1),[r,r,0,0]);}
+    else{ctx.rect(x,y,barW,Math.max(bh,1));}
+    ctx.fill();
+    if(isHi){
+      ctx.strokeStyle='rgba(201,168,76,.9)';ctx.lineWidth=1.5;
+      ctx.beginPath();
+      if(ctx.roundRect){ctx.roundRect(x+0.75,y+0.75,barW-1.5,Math.max(bh,1)-1.5,[r,r,0,0]);}
+      else{ctx.rect(x+0.75,y+0.75,barW-1.5,Math.max(bh,1)-1.5);}
+      ctx.stroke();
+    }
+  });
+
+  // Etiquetas eje X (se saltan algunas si hay muchas, para no amontonar texto)
+  ctx.fillStyle='#7A7870';ctx.font='8px Space Grotesk, sans-serif';ctx.textAlign='center';ctx.textBaseline='top';
+  const maxLabels=Math.floor(chartW/26);
+  const step=Math.max(1,Math.ceil(n/Math.max(maxLabels,1)));
+  labels.forEach((lab,i)=>{
+    if(i%step!==0)return;
+    const x=padL+i*(chartW/n)+(chartW/n)/2;
+    ctx.save();
+    if(padB>20){ctx.translate(x,padT+chartH+4);ctx.rotate(-0.5);ctx.textAlign='right';ctx.fillText(lab,0,0);}
+    else{ctx.fillText(lab,x,padT+chartH+4);}
+    ctx.restore();
+  });
+
+  // Guarda la geometría de cada barra para poder detectar sobre cuál está
+  // el dedo/cursor y mostrar su monto exacto.
+  const bars=[];
+  values.forEach((v,i)=>{
+    bars.push({x:padL+i*(chartW/n), w:chartW/n, value:v, label:labels[i]});
+  });
+  canvas._chartBars=bars;
+  setupChartTooltip(canvas);
+}
+
+// Tooltip compartido por todos los gráficos: se crea una sola vez y se
+// reutiliza. Responde tanto a mouse (hover) como a toque (touchstart/move).
+function setupChartTooltip(canvas){
+  let tip=document.getElementById('chart-tip');
+  if(!tip){
+    tip=document.createElement('div');
+    tip.id='chart-tip';
+    tip.style.cssText='position:fixed;pointer-events:none;background:var(--ink);color:#fff;padding:6px 11px;border-radius:8px;font-size:12px;font-family:"Space Mono",monospace;font-weight:700;z-index:500;display:none;box-shadow:0 4px 14px rgba(0,0,0,.35);white-space:nowrap;transform:translate(-50%,-100%);margin-top:-10px';
+    document.body.appendChild(tip);
+  }
+  function findBar(clientX){
+    const rect=canvas.getBoundingClientRect();
+    const x=clientX-rect.left;
+    return (canvas._chartBars||[]).find(b=>x>=b.x&&x<b.x+b.w);
+  }
+  function show(clientX,clientY){
+    const bar=findBar(clientX);
+    if(!bar){tip.style.display='none';return;}
+    tip.innerHTML=(bar.label?`<span style="color:var(--gold);font-weight:400;font-size:10px">${bar.label}</span><br>`:'')+fmt(bar.value);
+    tip.style.left=clientX+'px';
+    tip.style.top=clientY+'px';
+    tip.style.display='block';
+  }
+  function hide(){tip.style.display='none';}
+  if(canvas._tooltipBound)return; // los listeners se ligan una sola vez por canvas
+  canvas._tooltipBound=true;
+  canvas.addEventListener('mousemove',e=>show(e.clientX,e.clientY));
+  canvas.addEventListener('mouseleave',hide);
+  canvas.addEventListener('touchstart',e=>{const t=e.touches[0];if(t)show(t.clientX,t.clientY);},{passive:true});
+  canvas.addEventListener('touchmove',e=>{const t=e.touches[0];if(t)show(t.clientX,t.clientY);},{passive:true});
+  canvas.addEventListener('touchend',()=>{setTimeout(hide,1200);});
+}
+let svcHistFilter='all';
+let heroMonthKey=null; // null = mes en curso. Si se selecciona un mes en Historial, queda fijado acá.
+
+// ── STORAGE ──
+function save(){
+  try{
+    localStorage.setItem('diem_services',JSON.stringify(services));
+    localStorage.setItem('diem_log',JSON.stringify(logEntries));
+  }catch(e){}
+}
+function getSetting(k,def){try{const v=localStorage.getItem('diem_'+k);return v!==null?v:def;}catch(e){return def;}}
+function setSetting(k,v){try{localStorage.setItem('diem_'+k,v);}catch(e){}}
+function getPin(){return getSetting('pin',DEFAULT_PIN);}
+
+function load(){
+  try{
+    const sv=localStorage.getItem('diem_services');
+    const lv=localStorage.getItem('diem_log');
+    const updated=localStorage.getItem('diem_svc_v2')==='1';
+    if(!updated||!sv){
+      services=JSON.parse(JSON.stringify(DEFAULT_SERVICES));
+      localStorage.setItem('diem_svc_v2','1');
+    } else {
+      services=JSON.parse(sv);
+    }
+    logEntries=lv?JSON.parse(lv):[];
+    save();
+  }catch(e){services=JSON.parse(JSON.stringify(DEFAULT_SERVICES));logEntries=[];}
+}
+
+// ── UTILS ──
+const uid=()=>Math.random().toString(36).slice(2,9);
+const fmt=n=>'$'+Math.round(n).toLocaleString('es-CL');
+const fmtK=n=>n>=1000000?'$'+(n/1000000).toFixed(2)+'M':n>=1000?'$'+Math.round(n/1000)+'K':fmt(n);
+const today=()=>new Date().toISOString().slice(0,10);
+const nowTime=()=>new Date().toTimeString().slice(0,5);
+const yesterday=()=>{const d=new Date();d.setDate(d.getDate()-1);const pad=n=>String(n).padStart(2,'0');return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;};
+function getSvc(id){return services.find(s=>s.id===id)||{name:'Eliminado',price:0,color:'#ccc',duration:0};}
+function fmtDate(d){const p=d.split('-');return p[2]+'/'+p[1];}
+function fmtDateShort(d){const p=d.split('-');return p[2]+'/'+MONTHS_ES[parseInt(p[1])-1];}
+function fmtDateFull(d){
+  const p=d.split('-');
+  const days=['Dom','Lun','Mar','Mié','Jue','Vie','Sáb'];
+  return days[new Date(d+'T12:00:00').getDay()]+' '+p[2]+'/'+MONTHS_ES[parseInt(p[1])-1];
+}
+function toast(msg){const el=document.getElementById('toast');el.textContent=msg;el.classList.add('show');setTimeout(()=>el.classList.remove('show'),2200);}
+// Busca un registro existente con la MISMA fecha y el MISMO nombre de cliente (nota).
+// Si la nota está vacía no se puede comparar nombre de cliente, así que nunca se considera duplicado.
+function findDuplicateEntry(date,note,excludeId){
+  const key=(note||'').toLowerCase().trim();
+  if(!key)return null;
+  return logEntries.find(e=>e.id!==excludeId&&e.date===date&&(e.note||'').toLowerCase().trim()===key);
+}
+// Inserta un registro nuevo, o si ya existe uno con la misma fecha+cliente lo reemplaza en vez de duplicarlo.
+function upsertLogEntry(entry,makeId){
+  const dup=findDuplicateEntry(entry.date,entry.note,null);
+  if(dup){
+    const idx=logEntries.findIndex(x=>x.id===dup.id);
+    logEntries[idx]={...logEntries[idx],...entry};
+    return 'updated';
+  }
+  let id=makeId();
+  while(logEntries.some(x=>x.id===id))id=makeId();
+  logEntries.push({id,...entry});
+  return 'added';
+}
+function filteredEntries(){
+  return logEntries.filter(e=>{
+    if(filterFrom&&e.date<filterFrom)return false;
+    if(filterTo&&e.date>filterTo)return false;
+    return true;
+  }).sort((a,b)=>a.date===b.date?a.time.localeCompare(b.time):a.date.localeCompare(b.date));
+}
+
+// ── LOGIN ──
+function initLogin(){
+  const name=getSetting('barber_name','Mi Barbería');
+  const logo=getSetting('logo_data','');
+  document.getElementById('login-name-el').textContent=name;
+  const el=document.getElementById('login-logo-el');
+  if(logo){el.innerHTML='<img src="'+logo+'" style="width:100%;height:100%;object-fit:cover;border-radius:50%">';}
+  else{el.innerHTML='';el.textContent=name.slice(0,2).toUpperCase();}
+  if(!localStorage.getItem('diem_pin_set'))document.getElementById('login-hint').textContent='Primera vez: PIN por defecto es 1234';
+  pinBuffer='';updatePinDots();
+  document.getElementById('login-error').textContent='';
+}
+function pinKey(d){if(pinBuffer.length>=4)return;pinBuffer+=d;updatePinDots();if(pinBuffer.length===4)setTimeout(checkPin,120);}
+function pinDel(){pinBuffer=pinBuffer.slice(0,-1);updatePinDots();document.getElementById('login-error').textContent='';document.querySelectorAll('.pin-dot').forEach(d=>d.classList.remove('error'));}
+function updatePinDots(){for(let i=0;i<4;i++){const d=document.getElementById('pd'+i);d.classList.toggle('filled',i<pinBuffer.length);d.classList.remove('error');}}
+function checkPin(){
+  if(pinBuffer===getPin()){
+    document.getElementById('login-screen').style.display='none';
+    document.getElementById('main-app').style.display='block';
+    localStorage.setItem('diem_pin_set','1');
+    renderAll();
+  } else {
+    document.querySelectorAll('.pin-dot').forEach(d=>{d.classList.add('error','filled');});
+    document.getElementById('login-error').textContent='PIN incorrecto, intentá de nuevo';
+    setTimeout(()=>{pinBuffer='';updatePinDots();document.getElementById('login-error').textContent='';},900);
+  }
+}
+function lockApp(){document.getElementById('main-app').style.display='none';document.getElementById('login-screen').style.display='flex';initLogin();}
+function openChangePinModal(){['pin-current','pin-new','pin-confirm'].forEach(id=>document.getElementById(id).value='');document.getElementById('pin-change-error').textContent='';openModal('modal-pin');}
+function savePin(){
+  const cur=document.getElementById('pin-current').value;
+  const nw=document.getElementById('pin-new').value;
+  const conf=document.getElementById('pin-confirm').value;
+  const err=document.getElementById('pin-change-error');
+  if(cur!==getPin()){err.textContent='El PIN actual es incorrecto';return;}
+  if(!/^\d{4}$/.test(nw)){err.textContent='El nuevo PIN debe tener exactamente 4 dígitos';return;}
+  if(nw!==conf){err.textContent='Los PINs no coinciden';return;}
+  setSetting('pin',nw);closeModal('modal-pin');toast('PIN actualizado ✓');
+}
+
+// ── TABS ──
+function sw(v,btn){
+  document.querySelectorAll('.view').forEach(s=>s.classList.remove('active'));
+  document.querySelectorAll('.nav-tab').forEach(b=>{b.classList.remove('active');b.setAttribute('aria-selected','false');});
+  document.getElementById('v-'+v).classList.add('active');
+  btn.classList.add('active');btn.setAttribute('aria-selected','true');
+  renderAll();
+}
+
+// ── PERIOD ──
+function openPeriodModal(){document.getElementById('period-from').value=filterFrom||'';document.getElementById('period-to').value=filterTo||'';openModal('modal-period');}
+function quickPeriod(q){
+  const now=new Date();const pad=n=>n.toString().padStart(2,'0');const d2s=d=>`${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
+  let f=null,t=null;
+  if(q==='today'){f=t=today();}
+  else if(q==='yesterday'){f=t=yesterday();}
+  else if(q==='week'){f=dateObjToISO(mondayOf(today()));t=today();}
+  else if(q==='month'){f=`${now.getFullYear()}-${pad(now.getMonth()+1)}-01`;t=today();}
+  else if(q==='last3'){const s=new Date(now);s.setMonth(s.getMonth()-3);f=d2s(s);t=today();}
+  else if(q==='year'){f=`${now.getFullYear()}-01-01`;t=today();}
+  document.getElementById('period-from').value=f||'';document.getElementById('period-to').value=t||'';
+}
+function applyPeriod(){filterFrom=document.getElementById('period-from').value||null;filterTo=document.getElementById('period-to').value||null;updatePeriodLabel();closeModal('modal-period');renderAll();}
+function updatePeriodLabel(){const el=document.getElementById('period-label');if(!filterFrom&&!filterTo){el.textContent='Todo';return;}el.textContent=(filterFrom?fmtDate(filterFrom):'inicio')+' – '+(filterTo?fmtDate(filterTo):'hoy');}
+function setQuick(q){
+  const now=new Date();const pad=n=>n.toString().padStart(2,'0');
+  let f=null,t=null;
+  if(q==='today'){f=t=today();}
+  else if(q==='yesterday'){f=t=yesterday();}
+  else if(q==='week'){f=dateObjToISO(mondayOf(today()));t=today();}
+  else if(q==='month'){f=`${now.getFullYear()}-${pad(now.getMonth()+1)}-01`;t=today();}
+  document.getElementById('filter-from').value=f||'';document.getElementById('filter-to').value=t||'';
+  if(q==='all'){document.getElementById('filter-from').value='';document.getElementById('filter-to').value='';}
+  applyFilter();
+}
+function applyFilter(){filterFrom=document.getElementById('filter-from').value||null;filterTo=document.getElementById('filter-to').value||null;updatePeriodLabel();renderAll();}
+
+// ── MODALS ──
+function openModal(id){document.getElementById(id).classList.add('open');}
+function closeModal(id){document.getElementById(id).classList.remove('open');}
+document.querySelectorAll('.modal-overlay').forEach(el=>{el.addEventListener('click',e=>{if(e.target===el)el.classList.remove('open');});});
+
+// ── CATALOG ──
+function buildSwatches(sel){
+  const row=document.getElementById('swatch-row');row.innerHTML='';
+  COLORS.forEach(c=>{const s=document.createElement('div');s.className='swatch';s.style.background=c;if(c===sel)s.classList.add('selected');s.onclick=()=>{document.querySelectorAll('.swatch').forEach(x=>x.classList.remove('selected'));s.classList.add('selected');document.getElementById('svc-color-val').value=c;};row.appendChild(s);});
+}
+function openSvcModal(id=null){
+  editingSvcId=id;
+  if(id){const s=getSvc(id);document.getElementById('svc-modal-title').textContent='Editar servicio';document.getElementById('svc-name').value=s.name;document.getElementById('svc-price').value=s.price;document.getElementById('svc-duration').value=s.duration||30;document.getElementById('svc-color-val').value=s.color;document.getElementById('svc-edit-id').value=id;buildSwatches(s.color);}
+  else{document.getElementById('svc-modal-title').textContent='Nuevo servicio';document.getElementById('svc-name').value='';document.getElementById('svc-price').value='';document.getElementById('svc-duration').value=30;document.getElementById('svc-edit-id').value='';buildSwatches(COLORS[0]);}
+  openModal('modal-svc');
+}
+function saveSvc(){
+  const name=document.getElementById('svc-name').value.trim();const price=parseFloat(document.getElementById('svc-price').value)||0;const duration=parseInt(document.getElementById('svc-duration').value)||30;const color=document.getElementById('svc-color-val').value;const editId=document.getElementById('svc-edit-id').value;
+  if(!name){document.getElementById('svc-name').focus();return;}
+  if(editId){const idx=services.findIndex(s=>s.id===editId);if(idx>-1)services[idx]={...services[idx],name,price,duration,color};toast('Servicio actualizado ✓');}
+  else{services.push({id:uid(),name,price,duration,color});toast('Servicio creado ✓');}
+  save();closeModal('modal-svc');renderAll();
+}
+function deleteSvc(id){showConfirm('¿Eliminar este servicio?',()=>{services=services.filter(s=>s.id!==id);save();renderAll();toast('Servicio eliminado');},{type:'danger'});}
+function resetServices(){showConfirm('¿Restablecer los servicios a la lista original?',()=>{services=JSON.parse(JSON.stringify(DEFAULT_SERVICES));localStorage.setItem('diem_svc_v2','1');save();renderAll();toast('Servicios restablecidos ✓');},{type:'confirm'});}
+function renderCatalog(){
+  const el=document.getElementById('catalog-list');
+  if(!services.length){el.innerHTML='<div class="empty"><i class="ti ti-scissors"></i><p>Agregá tu primer servicio</p></div>';return;}
+  el.innerHTML=services.map(s=>`<div class="svc-catalog-item"><div class="svc-color-dot" style="background:${s.color}"></div><div style="flex:1"><div class="svc-name">${s.name}</div><div style="font-size:10px;color:var(--ink3);margin-top:2px">${s.duration||30} min</div></div><div class="svc-price">${fmt(s.price)}</div><div class="svc-actions"><button class="btn btn-ghost btn-icon btn-sm" onclick="openSvcModal('${s.id}')"><i class="ti ti-pencil"></i></button><button class="btn btn-danger btn-icon btn-sm" onclick="deleteSvc('${s.id}')"><i class="ti ti-trash"></i></button></div></div>`).join('');
+}
+
+// ── LOG (agrupado por día) ──
+function openLogModal(id=null){
+  editingLogId=id;
+  const sel=document.getElementById('log-svc-select');
+  sel.innerHTML='<option value="">— Elegí un servicio —</option>'+services.map(s=>`<option value="${s.id}">${s.name} — ${fmt(s.price)}</option>`).join('');
+  if(id){const e=logEntries.find(x=>x.id===id);document.getElementById('log-modal-title').textContent='Editar registro';document.getElementById('log-date').value=e.date;document.getElementById('log-time').value=e.time;sel.value=e.svcId;document.getElementById('log-price').value=e.price;document.getElementById('log-tip').value=e.tip||0;document.getElementById('log-note').value=e.note||'';}
+  else{document.getElementById('log-modal-title').textContent='Registrar servicio';document.getElementById('log-date').value=today();document.getElementById('log-time').value=nowTime();sel.value='';document.getElementById('log-price').value='';document.getElementById('log-tip').value='';document.getElementById('log-note').value='';}
+  sel.onchange=()=>{const s=services.find(x=>x.id===sel.value);if(s&&!id){document.getElementById('log-price').value=s.price;document.getElementById('log-tip').value='';}};
+  openModal('modal-log');
+}
+function saveLog(){
+  const date=document.getElementById('log-date').value;const time=document.getElementById('log-time').value;const svcId=document.getElementById('log-svc-select').value;const price=parseFloat(document.getElementById('log-price').value)||0;const tip=parseFloat(document.getElementById('log-tip').value)||0;const note=document.getElementById('log-note').value.trim();
+  if(!date||!svcId){toast('Completá fecha y servicio');return;}
+  if(editingLogId){const idx=logEntries.findIndex(e=>e.id===editingLogId);if(idx>-1)logEntries[idx]={...logEntries[idx],date,time,svcId,price,tip,note};toast('Registro actualizado ✓');}
+  else{
+    const result=upsertLogEntry({date,time,svcId,price,tip,note},uid);
+    toast(result==='updated'?'Ya existía un registro de ese cliente en esa fecha — actualizado ✓':'Servicio registrado ✓');
+  }
+  save();closeModal('modal-log');renderAll();
+}
+function deleteLog(id){
+  showConfirm('¿Eliminar este registro?',()=>{
+    logEntries=logEntries.filter(e=>e.id!==id);
+    save();renderAll();toast('Registro eliminado');
+  },{type:'danger'});
+}
+function clearAllLogs(){
+  showConfirm('¿Borrar TODO el historial? Esta acción no se puede deshacer.',()=>{
+    logEntries=[];
+    save();renderAll();toast('Historial borrado');
+  },{type:'danger'});
+}
+
+function fmtDateDMY(d){const p=d.split('-');return p[2]+'/'+p[1]+'/'+p[0];}
+function mondayOf(dateStr){
+  const dt=new Date(dateStr+'T12:00:00');
+  const dow=(dt.getDay()+6)%7; // 0=Lun…6=Dom
+  dt.setDate(dt.getDate()-dow);
+  return dt;
+}
+function dateObjToISO(d){const pad=n=>String(n).padStart(2,'0');return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;}
+const DOW_LABELS=['Lunes','Martes','Miércoles','Jueves','Viernes','Sábado','Domingo'];
+function dowLabel(dateStr){const dt=new Date(dateStr+'T12:00:00');return DOW_LABELS[(dt.getDay()+6)%7];}
+
+function renderLog(){
+  const el=document.getElementById('log-list');const entries=filteredEntries();
+  if(!entries.length){el.innerHTML='<div class="empty" style="padding:40px 20px"><i class="ti ti-list-check"></i><p>Sin registros en este período</p></div>';return;}
+
+  const byDate={};entries.forEach(e=>{if(!byDate[e.date])byDate[e.date]=[];byDate[e.date].push(e);});
+  const sortedDates=Object.keys(byDate).sort();
+  // Si hay un filtro de fecha activo (Desde/Hasta, Hoy, Semana, Mes), el resultado se
+  // recorta EXACTO a esa franja — nunca se asoman días de fuera del rango seleccionado.
+  // Sin filtro ("Todo") se usa el rango real de los datos guardados.
+  const rangeStart=filterFrom||sortedDates[0];
+  const rangeEnd=filterTo||sortedDates[sortedDates.length-1];
+  const firstMonday=mondayOf(rangeStart);
+  const lastDateObj=new Date(rangeEnd+'T12:00:00');
+
+  // Construye cada semana completa (lunes→domingo), incluyendo los días sin servicios
+  // para ver el calendario completo, pero recortando cualquier día fuera del rango elegido.
+  const weeks=[];
+  let cursor=new Date(firstMonday);
+  while(cursor<=lastDateObj){
+    const days=[];
+    for(let i=0;i<7;i++){
+      const dd=new Date(cursor);dd.setDate(cursor.getDate()+i);
+      const iso=dateObjToISO(dd);
+      if(iso<rangeStart||iso>rangeEnd)continue;
+      days.push(iso);
+    }
+    if(days.length)weeks.push(days);
+    cursor.setDate(cursor.getDate()+7);
+  }
+
+  let html='';
+  weeks.slice().reverse().forEach(days=>{
+    // Solo se muestran los días que SÍ tienen servicios registrados: así el
+    // listado va directo a lo que importa, en vez de enterrar tus datos
+    // reales entre decenas de días vacíos del calendario.
+    const daysWithData=days.filter(d=>(byDate[d]||[]).length>0);
+    if(!daysWithData.length)return; // semana completa sin datos: se omite entera
+
+    let weekSvcs=0,weekTotal=0,weekTip=0,weekHtml='';
+    daysWithData.forEach(date=>{
+      const de=(byDate[date]||[]).slice().sort((a,b)=>a.time.localeCompare(b.time));
+      const dt=de.reduce((s,e)=>s+e.price+(e.tip||0),0);
+      const tipDay=de.reduce((s,e)=>s+(e.tip||0),0);
+      weekSvcs+=de.length;weekTotal+=dt;weekTip+=tipDay;
+      weekHtml+=`<div class="log-day-header"><span>${dowLabel(date)} ${fmtDateDMY(date)}</span><span class="log-day-meta">${de.length} svc${de.length!==1?'s':''} · <span class="log-day-total">${fmt(dt)}</span>${tipDay?` · propinas ${fmt(tipDay)}`:''}</span></div>`;
+      weekHtml+=`<div class="card" style="border-radius:0;border-left:none;border-right:none;border-top:none;box-shadow:none">`;
+      de.forEach(e=>{
+        const s=getSvc(e.svcId);
+        const noteHtml=[e.note].filter(Boolean).join(' · ');
+        const tipHtml=e.tip?`<div class="log-note-txt">Propina ${fmt(e.tip)}</div>`:'';
+        weekHtml+=`<div class="log-item">
+          <span class="log-time">${e.time||'—'}</span>
+          <div class="log-dot" style="background:${s.color}"></div>
+          <div class="log-info">
+            <div class="log-svc-name">${s.name}</div>
+            ${noteHtml?`<div class="log-note-txt">${noteHtml}</div>`:''}
+            ${tipHtml}
+          </div>
+          <span class="log-price">${fmt(e.price + (e.tip||0))}</span>
+          <button class="log-del" onclick="openLogModal('${e.id}')"><i class="ti ti-pencil" style="font-size:13px"></i></button>
+          <button class="log-del" onclick="deleteLog('${e.id}')"><i class="ti ti-trash" style="font-size:13px"></i></button>
+        </div>`;
+      });
+      weekHtml+=`</div>`;
+    });
+    html+=weekHtml;
+    html+=`<div class="log-week-total"><span><i class="ti ti-calendar-stats" style="margin-right:5px"></i>Semana ${fmtDateDMY(days[0])} – ${fmtDateDMY(days[days.length-1])}</span><span>${weekSvcs} svc${weekSvcs!==1?'s':''} · ${fmt(weekTotal)}${weekTip?` · propinas ${fmt(weekTip)}`:''}</span></div>`;
+  });
+  if(!html){el.innerHTML='<div class="empty" style="padding:40px 20px"><i class="ti ti-list-check"></i><p>Sin registros en este período</p></div>';return;}
+  el.innerHTML=html;
+}
+
+// ── SERVICIOS REALIZADOS (lista plana con fecha+hora + selección múltiple) ──
+let selectedIds=new Set();
+let selectMode=false;
+
+function setSvcView(v,btn){
+  svcHistFilter=v;
+  document.querySelectorAll('.view-toggle-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  selectedIds.clear();selectMode=false;
+  renderSvcHist();
+}
+
+function toggleSelectMode(){
+  selectMode=!selectMode;
+  if(!selectMode){
+    selectedIds.clear();
+    const fab=document.querySelector('.fab');
+    if(fab)fab.style.display='flex';
+    const bar=document.getElementById('sel-bar');
+    if(bar)bar.style.display='none';
+  }
+  renderSvcHist();
+}
+
+function toggleSelectItem(id,el){
+  if(!selectMode){selectMode=true;}
+  if(selectedIds.has(id)){selectedIds.delete(id);el.classList.remove('selected');}
+  else{selectedIds.add(id);el.classList.add('selected');}
+  updateSelectionBar();
+}
+
+function toggleSelectAll(entries){
+  if(selectedIds.size===entries.length){selectedIds.clear();}
+  else{entries.forEach(e=>selectedIds.add(e.id));}
+  renderSvcHist();
+}
+
+function updateSelectionBar(){
+  const bar=document.getElementById('sel-bar');
+  const fab=document.querySelector('.fab');
+  const cnt=selectedIds.size;
+  if(!bar)return;
+  if(cnt>0){
+    bar.style.display='flex';
+    if(fab)fab.style.display='none';
+    document.getElementById('sel-bar-count').textContent=cnt+' seleccionado'+(cnt!==1?'s':'');
+  } else {
+    bar.style.display='none';
+    if(fab)fab.style.display=selectMode?'none':'flex';
+  }
+  // Also hide/show FAB based on selectMode
+  if(fab)fab.style.display=selectMode?'none':'flex';
+}
+
+function _doDeleteSelected(){
+  logEntries=logEntries.filter(e=>!selectedIds.has(e.id));
+  selectedIds.clear();selectMode=false;
+  const fab=document.querySelector('.fab');if(fab)fab.style.display='flex';
+  const bar=document.getElementById('sel-bar');if(bar)bar.style.display='none';
+  save();renderAll();toast('Eliminados ✓');
+}
+function deleteSelected(){
+  if(!selectedIds.size)return;
+  showConfirm(`¿Eliminar ${selectedIds.size} servicio${selectedIds.size!==1?'s':''}?`,_doDeleteSelected,{type:'danger'});
+}
+
+function renderSvcHist(){
+  const sel=document.getElementById('svc-hist-filter-svc');
+  const curVal=sel.value;
+  sel.innerHTML='<option value="">Todos los servicios</option>'+services.map(s=>`<option value="${s.id}">${s.name}</option>`).join('');
+  sel.value=curVal;
+
+  const now=new Date();const pad=n=>n.toString().padStart(2,'0');
+  let from=null,to=today();
+  if(svcHistFilter==='today'){from=to=today();}
+  else if(svcHistFilter==='yesterday'){from=to=yesterday();}
+  else if(svcHistFilter==='week'){const s=new Date(now);s.setDate(now.getDate()-now.getDay());from=`${s.getFullYear()}-${pad(s.getMonth()+1)}-${pad(s.getDate())}`;to=today();}
+
+  const filterSvcId=sel.value;
+  let entries=logEntries.slice().sort((a,b)=>(b.date+b.time).localeCompare(a.date+a.time));
+  if(from)entries=entries.filter(e=>e.date>=from&&e.date<=to);
+  if(filterSvcId)entries=entries.filter(e=>e.svcId===filterSvcId);
+
+  const el=document.getElementById('svc-hist-list');
+  if(!entries.length){
+    selectedIds.clear();selectMode=false;
+    el.innerHTML='<div class="empty" style="padding:32px 20px"><i class="ti ti-clock-record"></i><p>Sin servicios en este período</p></div>';
+    updateSelectionBar();return;
+  }
+
+  const total=entries.reduce((s,e)=>s+e.price+(e.tip||0),0);
+  const allSelected=selectedIds.size===entries.length&&entries.length>0;
+
+  let html=`<div style="padding:8px 14px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--border);gap:8px">
+    <div style="display:flex;align-items:center;gap:8px">
+      ${selectMode?`<button onclick="toggleSelectAll(window._histEntries)" style="background:none;border:none;cursor:pointer;font-size:11px;color:var(--gold-text);font-weight:700;font-family:inherit;padding:0">${allSelected?'Deseleccionar todo':'Seleccionar todo'}</button>`:`<span style="font-size:11px;color:var(--ink3)">${entries.length} servicio${entries.length!==1?'s':''}</span>`}
+    </div>
+    <div style="display:flex;align-items:center;gap:8px">
+      <span style="font-size:12px;font-weight:700;font-family:'Space Mono',monospace;color:var(--gold-text)">${fmt(total)}</span>
+      <button onclick="toggleSelectMode()" style="background:${selectMode?'var(--red-bg)':'var(--bg)'};border:1px solid ${selectMode?'rgba(192,57,43,.2)':'var(--border2)'};color:${selectMode?'var(--red)':'var(--ink2)'};border-radius:6px;padding:4px 10px;font-size:11px;font-weight:700;cursor:pointer;font-family:inherit">${selectMode?'Cancelar':'Seleccionar'}</button>
+    </div>
+  </div>`;
+
+  // Group entries by day (jornada)
+  const byDay={};
+  entries.forEach(e=>{
+    if(!byDay[e.date])byDay[e.date]=[];
+    byDay[e.date].push(e);
+  });
+  const dayKeys=Object.keys(byDay).sort().reverse();
+
+  dayKeys.forEach(date=>{
+    const dayEntries=byDay[date];
+    const dayTotal=dayEntries.reduce((s,e)=>s+e.price+(e.tip||0),0);
+    const dayTip=dayEntries.reduce((s,e)=>s+(e.tip||0),0);
+    html+=`<div class="svc-hist-day-header">
+      <span class="svc-hist-day-label">${fmtDateFull(date)}</span>
+      <span class="svc-hist-day-meta">${dayEntries.length} svc${dayEntries.length!==1?'s':''} · <strong>${fmt(dayTotal)}</strong>${dayTip?` · propinas ${fmt(dayTip)}`:''}</span>
+    </div>`;
+
+    dayEntries.forEach(e=>{
+      const s=getSvc(e.svcId);
+      const isSel=selectedIds.has(e.id);
+      const noteLines=[];
+      if(e.note)noteLines.push(e.note);
+      if(e.tip)noteLines.push('Propina '+fmt(e.tip));
+      html+=`<div class="svc-hist-item${isSel?' selected':''}" ${selectMode?`onclick="toggleSelectItem('${e.id}',this)"`:''} style="${selectMode?'cursor:pointer;user-select:none;':''}">
+        ${selectMode?`<div style="width:22px;height:22px;border-radius:50%;border:2px solid ${isSel?'var(--gold)':'var(--border2)'};background:${isSel?'var(--gold)':'transparent'};display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .15s">${isSel?'<i class="ti ti-check" style="font-size:12px;color:var(--ink);font-weight:900"></i>':''}</div>`:''}
+        <div class="svc-hist-datetime"><div class="svc-hist-time-big">${e.time||'—'}</div></div>
+        <div class="svc-hist-dot" style="background:${s.color}"></div>
+        <div class="svc-hist-info"><div class="svc-hist-name">${s.name}</div>${noteLines.length?`<div class="svc-hist-note">${noteLines.join(' · ')}</div>`:''}</div>
+        <span class="svc-hist-price">${fmt(e.price + (e.tip||0))}</span>
+        ${selectMode?'':`<button class="log-del" onclick="event.stopPropagation();openLogModal('${e.id}')"><i class="ti ti-pencil" style="font-size:13px"></i></button>`}
+        <button class="log-del" onclick="event.stopPropagation();deleteLog('${e.id}')"><i class="ti ti-trash" style="font-size:13px"></i></button>
+      </div>`;
+    });
+  });
+
+  el.innerHTML=html;
+  window._histEntries=entries;
+  updateSelectionBar();
+}
+
+// ── RESUMEN ──
+function getWeekKey(d){const m=new Date(d);m.setDate(d.getDate()-((d.getDay()+6)%7));return 'S'+m.toLocaleDateString('es-CL',{day:'2-digit',month:'2-digit'});}
+function shiftMonthKey(key,offset){
+  const[y,m]=key.split('-').map(Number);
+  const d=new Date(y,m-1+offset,1);
+  return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0');
+}
+
+function shiftHeroMonth(offset){
+  const curKey=today().slice(0,7);
+  const current=heroMonthKey||curKey;
+  heroMonthKey=shiftMonthKey(current,offset);
+  renderAll();
+}
+function renderHero(){
+  const byMonth={};
+  logEntries.forEach(e=>{
+    const k=e.date.slice(0,7);
+    if(!byMonth[k])byMonth[k]={total:0,tip:0,cnt:0,days:new Set()};
+    byMonth[k].total+=e.price+(e.tip||0);
+    byMonth[k].tip+=e.tip||0;
+    byMonth[k].cnt++;
+    byMonth[k].days.add(e.date);
+  });
+  const curKey=today().slice(0,7);
+  const displayKey=heroMonthKey||curKey; // mes seleccionado en Historial, o el mes en curso
+  const isSelectedDifferent=displayKey!==curKey;
+  const cur=byMonth[displayKey]||{total:0,tip:0,cnt:0,days:new Set()};
+  const tipTotal=cur.tip||0;
+  const avgDay=cur.days.size?cur.total/cur.days.size:0;
+  const avgSvc=cur.cnt?cur.total/cur.cnt:0;
+
+  document.getElementById('hero-label').textContent='Ganancia de '+MONTHS_FULL[parseInt(displayKey.split('-')[1])-1]+(isSelectedDifferent?' '+displayKey.split('-')[0]:'');
+  document.getElementById('hero-back-current').style.display=isSelectedDifferent?'':'none';
+  document.getElementById('hero-total').textContent=fmt(cur.total);
+  document.getElementById('hero-tip').textContent='Propinas: '+fmt(tipTotal);
+  document.getElementById('hero-sub').textContent=cur.cnt+' servicios · '+cur.days.size+' jornadas';
+  document.getElementById('hs-svcs').textContent=cur.cnt;
+  document.getElementById('hs-avg-day').textContent=cur.days.size?fmtK(avgDay):'$0';
+  document.getElementById('hs-avg-svc').textContent=cur.cnt?fmtK(avgSvc):'$0';
+
+  // Últimos 3 meses (ventana móvil que siempre termina en el mes actual real)
+  const keys3=[shiftMonthKey(curKey,-2),shiftMonthKey(curKey,-1),curKey];
+  const vals3=keys3.map(k=>byMonth[k]?byMonth[k].total:0);
+  const maxV=Math.max(...vals3),minV=Math.min(...vals3);
+  document.getElementById('hero-last3').innerHTML=
+    '<div style="font-size:9px;color:rgba(255,255,255,.3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:2px;text-align:right">3 meses</div>'+
+    keys3.map((k,i)=>{
+      const v=vals3[i];
+      const isMax=v===maxV&&maxV>0;
+      const isMin=v===minV&&minV<maxV;
+      const color=isMax?'var(--gold)':(isMin?'rgba(255,255,255,.35)':'#fff');
+      const mShort=MONTHS_ES[parseInt(k.split('-')[1])-1];
+      return `<div style="display:flex;justify-content:space-between;gap:8px"><span style="font-size:9px;color:rgba(255,255,255,.4);text-transform:uppercase">${mShort}${isMax?' ▲':''}${isMin?' ▼':''}</span><span style="font-size:11px;font-family:'Space Mono',monospace;font-weight:700;color:${color}">${fmtK(v)}</span></div>`;
+    }).join('');
+
+  // Récord mensual a romper (mejor mes histórico, sin contar el mes que se está mostrando)
+  const recordRow=document.getElementById('hero-record');
+  const otherKeys=Object.keys(byMonth).filter(k=>k!==displayKey);
+  if(otherKeys.length){
+    const bestKey=otherKeys.reduce((a,b)=>byMonth[a].total>byMonth[b].total?a:b);
+    const bestVal=byMonth[bestKey].total;
+    const bestLabel=MONTHS_ES[parseInt(bestKey.split('-')[1])-1]+' '+bestKey.split('-')[0];
+    const recEl=document.getElementById('hero-record-v');
+    if(cur.total>=bestVal){
+      recEl.innerHTML='<i class="ti ti-sparkles" style="font-size:12px"></i> ¡Superado! · antes '+fmt(bestVal);
+    } else {
+      recEl.textContent=fmt(bestVal)+' · '+bestLabel;
+    }
+    recordRow.style.display='flex';
+  } else {
+    recordRow.style.display='none';
+  }
+}
+
+function renderResumen(){
+  const entries=filteredEntries();const total=entries.reduce((s,e)=>s+e.price+(e.tip||0),0);const svcs=entries.length;
+  const days=[...new Set(entries.map(e=>e.date))];const nDays=days.length;const avgDay=nDays?total/nDays:0;const avgSvc=svcs?total/svcs:0;
+  document.getElementById('kpi-total').textContent=fmtK(total);document.getElementById('kpi-svcs').textContent=svcs;document.getElementById('kpi-days-s').textContent=nDays+' jornadas';
+  document.getElementById('stat-avg-day').textContent=fmt(avgDay);document.getElementById('stat-avg-svc').textContent=fmt(avgSvc);document.getElementById('kpi-ticket').textContent=svcs?fmtK(avgSvc):'$0';
+  const byDay={};entries.forEach(e=>{if(!byDay[e.date])byDay[e.date]={total:0,cnt:0};byDay[e.date].total+=e.price+(e.tip||0);byDay[e.date].cnt++;});
+  const bdk=Object.keys(byDay);
+  if(bdk.length){
+    const best=bdk.slice().sort((a,b)=>byDay[b].total-byDay[a].total)[0];
+    const mostC=bdk.slice().sort((a,b)=>byDay[b].cnt-byDay[a].cnt)[0];
+    const worst=bdk.slice().sort((a,b)=>byDay[a].total-byDay[b].total)[0];
+    document.getElementById('kpi-best-day').textContent=fmtDateFull(best);document.getElementById('kpi-best-day-s').textContent=byDay[best].cnt+' svcs · '+fmt(byDay[best].total);
+    document.getElementById('stat-best-count').textContent=fmtDateFull(mostC)+' · '+byDay[mostC].cnt+' svcs';document.getElementById('stat-worst-day').textContent=fmtDateFull(worst)+' · '+fmt(byDay[worst].total);
+  } else {
+    ['kpi-best-day','stat-best-count','stat-worst-day'].forEach(id=>document.getElementById(id).textContent='—');
+    document.getElementById('kpi-best-day-s').textContent='sin datos';
+  }
+  const byWeek={};entries.forEach(e=>{const w=getWeekKey(new Date(e.date+'T12:00:00'));if(!byWeek[w])byWeek[w]=0;byWeek[w]+=e.price+(e.tip||0);});
+  const bw=Object.keys(byWeek).sort((a,b)=>byWeek[b]-byWeek[a])[0];
+  document.getElementById('stat-best-week').textContent=bw?bw+' · '+fmt(byWeek[bw]):'—';
+  document.getElementById('kpi-period-s').textContent=filterFrom||filterTo?(filterFrom?fmtDate(filterFrom):'inicio')+' – '+(filterTo?fmtDate(filterTo):'hoy'):'todo el historial';
+  // Daily chart
+  if(dailyChart){dailyChart=null;}
+  const dates=Object.keys(byDay).sort();
+  if(dates.length){
+    drawBarChart('c-daily',dates.map(d=>fmtDate(d)),dates.map(d=>byDay[d].total));
+    dailyChart=true;
+  }
+  // Mix
+  const mixEl=document.getElementById('mix-list');
+  if(!entries.length){mixEl.innerHTML='<div class="empty"><i class="ti ti-scissors"></i><p>Sin registros todavía</p></div>';return;}
+  const bySvc={};entries.forEach(e=>{if(!bySvc[e.svcId])bySvc[e.svcId]={cnt:0,total:0};bySvc[e.svcId].cnt++;bySvc[e.svcId].total+=e.price+(e.tip||0);});
+  const sorted=Object.entries(bySvc).sort((a,b)=>b[1].cnt-a[1].cnt);const maxC=sorted[0][1].cnt;
+  mixEl.innerHTML=sorted.map(([id,d],i)=>{const s=getSvc(id);const pct=Math.round(d.cnt/maxC*100);return `<div class="svc-catalog-item" style="padding:10px 14px"><span style="font-size:10px;color:var(--ink3);font-family:'Space Mono',monospace;min-width:16px">${i+1}</span><div class="svc-color-dot" style="background:${s.color}"></div><div style="flex:1"><div style="font-size:13px;font-weight:500">${s.name}</div><div style="height:4px;background:var(--border);border-radius:2px;overflow:hidden;margin-top:5px"><div style="height:100%;width:${pct}%;background:${s.color};border-radius:2px"></div></div></div><div style="text-align:right;flex-shrink:0"><div style="font-size:12px;font-weight:700;font-family:'Space Mono',monospace">${d.cnt}x</div><div style="font-size:11px;color:var(--gold-text);font-family:'Space Mono',monospace">${fmtK(d.total)}</div></div></div>`;}).join('');
+}
+
+// ── HISTORIAL ──
+function renderHistorial(){
+  monthlyChart=null;
+  const byMonth={};
+  logEntries.forEach(e=>{
+    const k=e.date.slice(0,7);
+    if(!byMonth[k])byMonth[k]={total:0,tip:0,cnt:0};
+    byMonth[k].total+=e.price+(e.tip||0);
+    byMonth[k].tip+=e.tip||0;
+    byMonth[k].cnt++;
+  });
+  const nowKey=today().slice(0,7);
+  const keys=Array.from({length:12},(_,i)=>shiftMonthKey(nowKey,i-11));
+  const displayedKeys=keys;
+  const validKeys=Object.keys(byMonth).sort();
+  if(!validKeys.length){
+    document.getElementById('month-rows').innerHTML='<div class="empty"><i class="ti ti-calendar-month"></i><p>Sin historial todavía</p></div>';
+    document.getElementById('best-month-v').textContent='—';
+    document.getElementById('best-month-s').textContent='sin datos';
+    document.getElementById('avg-month-v').textContent='$0';
+    document.getElementById('worst-month-v').textContent='—';
+    document.getElementById('worst-month-s').textContent='sin datos';
+    return;
+  }
+  const monthKeys=validKeys;
+  const bestKey=monthKeys.reduce((a,b)=>byMonth[a].total>byMonth[b].total?a:b);
+  const worstKey=monthKeys.reduce((a,b)=>byMonth[a].total<byMonth[b].total?a:b);
+  const avg=monthKeys.reduce((s,k)=>s+byMonth[k].total,0)/monthKeys.length;
+  const[by,bm]=bestKey.split('-');
+  document.getElementById('best-month-v').textContent=MONTHS_ES[parseInt(bm)-1]+' '+by;
+  document.getElementById('best-month-s').textContent=fmt(byMonth[bestKey].total)+' · '+byMonth[bestKey].cnt+' svcs';
+  const [wby,wbm]=worstKey.split('-');
+  document.getElementById('worst-month-v').textContent=MONTHS_ES[parseInt(wbm)-1]+' '+wby;
+  document.getElementById('worst-month-s').textContent=fmt(byMonth[worstKey].total)+' · '+byMonth[worstKey].cnt+' svcs';
+  document.getElementById('avg-month-v').textContent=fmtK(avg);
+  const maxV=Math.max(...displayedKeys.map(k=>byMonth[k]?.total||0));
+  monthlyChart=true;
+  drawBarChart('c-monthly',keys.map(k=>{const[y,m]=k.split('-');return MONTHS_ES[parseInt(m)-1]+' '+y.slice(2);}),keys.map(k=>byMonth[k]?.total||0),{highlightMax:true});
+  const maxT=Math.max(...displayedKeys.map(k=>byMonth[k]?.total||0));
+  document.getElementById('month-rows').innerHTML=keys.slice().reverse().map(k=>{
+    const[y,m]=k.split('-');
+    const d=byMonth[k]||{total:0,cnt:0};
+    const pct=maxT?Math.round(d.total/maxT*100):0;
+    const ib=k===bestKey;
+    const isSel=k===heroMonthKey;
+    const total=d.total;
+    const count=d.cnt;
+    return `<div class="month-row" onclick="selectHeroMonth('${k}')" style="cursor:pointer;${isSel?'background:var(--gold-bg);margin:0 -14px;padding:11px 14px;border-radius:8px':''}"><div><div class="month-name">${MONTHS_FULL[parseInt(m)-1]}</div><div style="font-size:10px;color:var(--ink3)">${y}</div></div><span class="month-cnt">${count} svcs</span><div class="month-track"><div class="month-fill" style="width:${pct}%;background:${ib?'#C9A84C':'#1A1916'}"></div></div><span class="month-val">${fmt(total)}</span></div>`;
+  }).join('');
+}
+
+function selectHeroMonth(key){
+  heroMonthKey=key;
+  renderHero();
+  renderHistorial();
+  if(key){
+    const[y,m]=key.split('-');
+    toast('Mostrando '+MONTHS_ES[parseInt(m)-1]+' '+y+' arriba ↑');
+  } else {
+    toast('Mostrando el mes en curso arriba ↑');
+  }
+}
+
+// ── PROFILE & LOGO ──
+function triggerLogoInput(){
+  // Reset value so same file can be re-selected
+  const inp=document.getElementById('logo-file-input');
+  inp.value='';
+  inp.click();
+}
+function handleLogoUpload(e){
+  const file=e.target.files[0];
+  if(!file)return;
+  // Resize to max 200x200 to avoid localStorage limits
+  const reader=new FileReader();
+  reader.onload=ev=>{
+    const img=new Image();
+    img.onload=()=>{
+      const canvas=document.createElement('canvas');
+      const MAX=200;
+      let w=img.width,h=img.height;
+      if(w>MAX||h>MAX){const ratio=Math.min(MAX/w,MAX/h);w=Math.round(w*ratio);h=Math.round(h*ratio);}
+      canvas.width=w;canvas.height=h;
+      canvas.getContext('2d').drawImage(img,0,0,w,h);
+      const data=canvas.toDataURL('image/jpeg',0.85);
+      setSetting('logo_data',data);
+      loadProfile();
+      toast('Logo actualizado ✓');
+    };
+    img.src=ev.target.result;
+  };
+  reader.readAsDataURL(file);
+}
+function loadProfile(){
+  const name=getSetting('barber_name','Mi Barbería');
+  const sub=getSetting('barber_sub','Barbero independiente');
+  const logo=getSetting('logo_data','');
+  // Inputs
+  document.getElementById('setting-name').value=name;
+  document.getElementById('setting-sub').value=sub;
+  // Header
+  document.getElementById('hdr-name-el').textContent=name;
+  document.getElementById('hdr-sub-el').textContent=sub;
+  const markEl=document.getElementById('hdr-mark-el');
+  const logoWrap=document.getElementById('hdr-logo-wrap');
+  if(logo){
+    markEl.innerHTML='<img src="'+logo+'" style="width:100%;height:100%;object-fit:cover;border-radius:50%">';
+    if(logoWrap)logoWrap.style.background='transparent';
+  } else {
+    markEl.innerHTML='';
+    markEl.textContent=name.slice(0,2).toUpperCase();
+    if(logoWrap)logoWrap.style.background='var(--gold)';
+  }
+  // Logo box in settings
+  const box=document.getElementById('logo-upload-box');
+  const prev=document.getElementById('logo-preview-img');
+  const icon=document.getElementById('logo-upload-icon');
+  const txt=document.getElementById('logo-upload-txt');
+  if(logo){
+    prev.src=logo;prev.style.display='block';
+    icon.style.display='none';txt.style.display='none';
+  } else {
+    prev.style.display='none';
+    icon.style.display='';txt.style.display='';
+  }
+}
+function saveProfile(){
+  const name=document.getElementById('setting-name').value.trim()||'Mi Barbería';
+  const sub=document.getElementById('setting-sub').value.trim()||'Barbero independiente';
+  setSetting('barber_name',name);setSetting('barber_sub',sub);
+  loadProfile();toast('Perfil guardado ✓');
+}
+
+// ── EXPORT / IMPORT JSON ──
+function exportJSON(){
+  const data={
+    version:1,
+    exportedAt:new Date().toISOString(),
+    barberName:getSetting('barber_name','Mi Barbería'),
+    barberSub:getSetting('barber_sub','Barbero independiente'),
+    services,
+    logEntries,
+  };
+  const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');
+  const date=new Date().toISOString().slice(0,10);
+  a.href=url;a.download=`diem_barber_${date}.json`;
+  document.body.appendChild(a);a.click();
+  document.body.removeChild(a);URL.revokeObjectURL(url);
+  toast('Datos exportados ✓');
+}
+function triggerImport(){document.getElementById('import-file-input').value='';document.getElementById('import-file-input').click();}
+// ── ROBUST JSON IMPORT (shared core) ──
+function cleanJSONText(raw){
+  let t=raw;
+  // Strip UTF-8 BOM
+  t=t.replace(/^\uFEFF/,'');
+  // Strip null bytes / control chars except \n \r \t
+  t=t.replace(/[\x00-\x08\x0B\x0C\x0E-\x1F]/g,'');
+  // Normalize smart quotes that sometimes sneak in from copy-paste
+  t=t.replace(/[\u2018\u2019]/g,"'").replace(/[\u201C\u201D]/g,'"');
+  // Trim leading/trailing whitespace
+  t=t.trim();
+  // If wrapped in markdown code fences ```json ... ```
+  t=t.replace(/^```(?:json)?\s*/i,'').replace(/```\s*$/,'');
+  return t.trim();
+}
+
+function tryParseJSON(raw){
+  const attempts=[];
+  const cleaned=cleanJSONText(raw);
+  attempts.push(cleaned);
+  // Attempt: remove trailing commas before } or ]
+  attempts.push(cleaned.replace(/,\s*([}\]])/g,'$1'));
+  // Attempt: if it looks like it might be double-encoded (a JSON string containing JSON)
+  if(cleaned.length>1 && cleaned[0]==='"' && cleaned[cleaned.length-1]==='"'){
+    try{ attempts.push(JSON.parse(cleaned)); }catch(e){}
+  }
+
+  for(const att of attempts){
+    if(typeof att==='object')return att; // already parsed above
+    try{
+      return JSON.parse(att);
+    }catch(e){ /* try next */ }
+  }
+  // Last resort: lenient Function-based parse (handles unquoted-safe JS object literals)
+  try{
+    return Function('"use strict";return ('+cleaned+')')();
+  }catch(e){ /* give up */ }
+  return null;
+}
+
+function findRegistrosArray(data){
+  // Direct key
+  if(Array.isArray(data.registros))return data.registros;
+  // Common alternates
+  const altKeys=['tickets','entries','logEntries','registros_servicios','data','items'];
+  for(const k of altKeys){
+    if(Array.isArray(data[k])&&data[k].length&&typeof data[k][0]==='object'){
+      // Heuristic: looks like a ticket if it has fecha/snom/precio/bb or date/svcId/price
+      const sample=data[k][0];
+      if('fecha' in sample || 'snom' in sample || 'precio' in sample || 'bb' in sample || 'date' in sample){
+        return data[k];
+      }
+    }
+  }
+  // If the top-level itself is an array of tickets
+  if(Array.isArray(data)&&data.length&&typeof data[0]==='object'){
+    const sample=data[0];
+    if('fecha' in sample || 'snom' in sample || 'precio' in sample || 'bb' in sample){
+      return data;
+    }
+  }
+  return null;
+}
+
+function normalizeDate(raw){
+  if(!raw)return today();
+  let s=String(raw);
+  if(s.includes('T'))s=s.slice(0,10);
+  // dd/mm/yyyy → yyyy-mm-dd
+  const m=s.match(/^(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{4})$/);
+  if(m){
+    const [_,d,mo,y]=m;
+    return y+'-'+mo.padStart(2,'0')+'-'+d.padStart(2,'0');
+  }
+  // yyyy-mm-dd already
+  if(/^\d{4}-\d{2}-\d{2}$/.test(s))return s;
+  return s.slice(0,10);
+}
+
+function normalizeTime(raw){
+  if(!raw)return '00:00';
+  let s=String(raw).trim();
+  // Strip seconds if HH:MM:SS
+  const m=s.match(/^(\d{1,2}):(\d{2})/);
+  if(m)return m[1].padStart(2,'0')+':'+m[2];
+  return '00:00';
+}
+
+function processImportData(data){
+  if(!data||typeof data!=='object'){
+    toast('El archivo no contiene un objeto JSON válido');
+    return false;
+  }
+
+  // ── Formato nativo DIEM app: { services:[], logEntries:[] } ──
+  // Se AÑADE a lo existente (no reemplaza): los servicios se fusionan por nombre
+  // y los registros nuevos se agregan sin tocar los que ya estaban guardados.
+  if(Array.isArray(data.services)&&Array.isArray(data.logEntries)){
+    const importName=data.barberName||'?';
+    showConfirm(`¿Importar ${data.logEntries.length} registros de "${importName}"? Se añadirán a tus servicios y registros actuales sin borrar nada.`,()=>{
+
+      // 1) Merge services: match by name (case-insensitive). Existing services
+      //    keep their current id; only genuinely new service names get added,
+      //    with a fresh id so we never collide with what's already there.
+      const existingByName={};
+      services.forEach(s=>{existingByName[s.name.toLowerCase().trim()]=s;});
+
+      const incomingIdToLocalId={}; // maps the imported file's own ids -> our local ids
+      (data.services||[]).forEach(incoming=>{
+        const key=(incoming.name||'').toLowerCase().trim();
+        const match=existingByName[key];
+        if(match){
+          incomingIdToLocalId[incoming.id]=match.id;
+        } else {
+          const newId='imp_'+Math.random().toString(36).slice(2,8);
+          const newSvc={
+            id:newId,
+            name:incoming.name,
+            price:incoming.price||0,
+            duration:incoming.duration||30,
+            color:incoming.color||COLORS[services.length%COLORS.length]
+          };
+          services.push(newSvc);
+          existingByName[key]=newSvc;
+          incomingIdToLocalId[incoming.id]=newId;
+        }
+      });
+
+      // 2) Remap each incoming log entry's svcId to the correct local service id,
+      //    then append TODOS los registros del JSON tal cual vienen, sin fusionar
+      //    ni descartar ninguno: cada JSON es un mes completo y debe importarse íntegro.
+      const existingIds=new Set(logEntries.map(e=>e.id));
+      const newEntries=(data.logEntries||[]).map(e=>{
+        const localSvcId=incomingIdToLocalId[e.svcId]||e.svcId;
+        let id='imp_'+Math.random().toString(36).slice(2,10);
+        while(existingIds.has(id))id='imp_'+Math.random().toString(36).slice(2,10);
+        existingIds.add(id);
+        // El precio se toma TAL CUAL viene en el JSON, sin adaptarlo al catálogo.
+        return{
+          id,
+          date:e.date,
+          time:e.time||'00:00',
+          svcId:localSvcId,
+          price:e.price||0,
+          note:e.note||''
+        };
+      });
+
+      logEntries=[...logEntries,...newEntries];
+
+      localStorage.setItem('diem_svc_v2','1');
+      save();renderAll();
+      toast(newEntries.length+' registro'+(newEntries.length!==1?'s':'')+' añadidos ✓');
+    },{type:'add'});
+    return true;
+  }
+
+  // ── Formato externo: array de tickets/registros con distintos nombres de campo ──
+  const registros=findRegistrosArray(data);
+  if(registros&&registros.length){
+    const name=data.barbero||data.bnom||getSetting('barber_name','Mi Barbería');
+    showConfirm(`¿Importar ${registros.length} registros${name?' de '+name:''}? Se añadirán a tus registros actuales.`,()=>{
+      const svcMap={};
+      services.forEach(s=>{svcMap[s.name.toLowerCase().trim()]=s.id;});
+
+      const newEntries=[];
+      let skipped=0;
+
+      registros.forEach(r=>{
+        try{
+          // Service name: try multiple possible field names
+          const svcName=(r.snom||r.servicio||r.svcName||r.name||r.service||'Servicio').toString().trim();
+          const svcKey=svcName.toLowerCase().trim();
+          let svcId=svcMap[svcKey];
+          if(!svcId){
+            const priceGuess=Number(r.precio??r.price??r.bb??r.total??0)||0;
+            const newSvc={
+              id:'imp_'+Math.random().toString(36).slice(2,8),
+              name:svcName,
+              price:priceGuess,
+              duration:30,
+              color:COLORS[services.length%COLORS.length]
+            };
+            services.push(newSvc);
+            svcMap[svcKey]=newSvc.id;
+            svcId=newSvc.id;
+          }
+
+          const date=normalizeDate(r.fecha||r.date||r.dia);
+          const time=normalizeTime(r.hora||r.time||r.hour);
+
+          // Precio: se toma TAL CUAL viene en el registro importado, sin
+          // adaptarlo al catálogo. Prioridad: bb (comisión real del barbero) >
+          // price > precio > total.
+          let price=0;
+          if(r.bb!=null)price=Number(r.bb);
+          else if(r.price!=null)price=Number(r.price);
+          else if(r.precio!=null)price=Number(r.precio);
+          else if(r.total!=null)price=Number(r.total);
+          if(isNaN(price))price=0;
+
+          let note='';
+          const clientName=r.cliente_nombre||r.cliente||r.client||r.note;
+          if(clientName)note=String(clientName).trim();
+          const propina=Number(r.propina||0);
+          if(propina>0)note=(note?note+' · ':'')+'+$'+propina+' propina';
+
+          const rid=r.id||r.ticket||r.tk;
+          newEntries.push({
+            id:'imp_'+(rid?String(rid):Math.random().toString(36).slice(2,10)),
+            date,time,svcId,price,note
+          });
+        }catch(rowErr){
+          skipped++;
+        }
+      });
+
+      // Se agregan TODOS los registros del JSON tal cual vienen, sin fusionar
+      // ni descartar ninguno: cada JSON es un mes completo y debe importarse íntegro.
+      const existingIds=new Set(logEntries.map(e=>e.id));
+      const toAdd=newEntries.filter(e=>!existingIds.has(e.id));
+      logEntries=[...logEntries,...toAdd];
+
+      if(data.barbero)setSetting('barber_name',data.barbero);
+      localStorage.setItem('diem_svc_v2','1');
+      save();renderAll();
+
+      let msg=toAdd.length+' registro'+(toAdd.length!==1?'s':'')+' importados ✓';
+      if(skipped>0)msg+=' ('+skipped+' omitidos)';
+      toast(msg);
+    },{type:'add'});
+    return true;
+  }
+
+  toast('No se reconoció el formato. Verificá que el JSON tenga "services"+"logEntries" o un array de registros.');
+  return false;
+}
+
+function handleImport(e){
+  const file=e.target.files[0];
+  if(!file)return;
+  const reader=new FileReader();
+  reader.onload=ev=>{
+    try{
+      const data=tryParseJSON(ev.target.result);
+      if(data===null){
+        toast('No se pudo leer el JSON. Probá con el botón "Pegar".');
+        return;
+      }
+      processImportData(data);
+    }catch(err){
+      console.error('Import error:',err);
+      toast('Error inesperado al procesar el archivo');
+    }
+  };
+  reader.onerror=()=>{toast('No se pudo leer el archivo');};
+  // Try UTF-8 first; most exports use it
+  reader.readAsText(file,'UTF-8');
+}
+
+function importFromPaste(){
+  const raw=document.getElementById('paste-json-area').value;
+  if(!raw||!raw.trim()){toast('Pegá el contenido JSON primero');return;}
+  const data=tryParseJSON(raw);
+  if(data===null){
+    toast('El texto pegado no es un JSON válido');
+    return;
+  }
+  closeModal('modal-paste-json');
+  processImportData(data);
+}
+
+
+// ── PROPINAS ──
+function renderPropinas(){
+  const tipped=logEntries.filter(e=>(e.tip||0)>0);
+
+  const todayTip=tipped.filter(e=>e.date===today()).reduce((s,e)=>s+e.tip,0);
+  const curMonthKey=today().slice(0,7);
+  const monthTip=tipped.filter(e=>e.date.slice(0,7)===curMonthKey).reduce((s,e)=>s+e.tip,0);
+  const totalTip=tipped.reduce((s,e)=>s+e.tip,0);
+  document.getElementById('tip-today-v').textContent=fmt(todayTip);
+  document.getElementById('tip-month-v').textContent=fmt(monthTip);
+  document.getElementById('tip-total-v').textContent=fmt(totalTip);
+
+  // Por mes
+  const byMonth={};
+  tipped.forEach(e=>{const k=e.date.slice(0,7);byMonth[k]=(byMonth[k]||0)+e.tip;});
+  const monthKeys=Object.keys(byMonth).sort().reverse();
+  const maxT=Math.max(...Object.values(byMonth),1);
+  const rowsEl=document.getElementById('tip-month-rows');
+  if(!monthKeys.length){
+    rowsEl.innerHTML='<div class="empty"><i class="ti ti-cash"></i><p>Sin propinas registradas todavía</p></div>';
+  } else {
+    rowsEl.innerHTML=monthKeys.map(k=>{
+      const[y,m]=k.split('-');
+      const v=byMonth[k];
+      const pct=Math.round(v/maxT*100);
+      return `<div class="month-row"><div><div class="month-name">${MONTHS_FULL[parseInt(m)-1]}</div><div style="font-size:10px;color:var(--ink3)">${y}</div></div><div class="month-track"><div class="month-fill" style="width:${pct}%;background:#C9A84C"></div></div><span class="month-val">${fmt(v)}</span></div>`;
+    }).join('');
+  }
+
+  // Detalle por día (más reciente primero)
+  const byDay={};
+  tipped.forEach(e=>{if(!byDay[e.date])byDay[e.date]=[];byDay[e.date].push(e);});
+  const dayKeys=Object.keys(byDay).sort().reverse();
+  const listEl=document.getElementById('tip-day-list');
+  if(!dayKeys.length){
+    listEl.innerHTML='<div class="empty" style="padding:32px 20px"><i class="ti ti-cash"></i><p>Sin propinas registradas todavía</p></div>';
+    return;
+  }
+  listEl.innerHTML=dayKeys.map(d=>{
+    const entries=byDay[d].slice().sort((a,b)=>a.time.localeCompare(b.time));
+    const dayTotal=entries.reduce((s,e)=>s+e.tip,0);
+    const rows=entries.map(e=>{
+      const s=getSvc(e.svcId);
+      return `<div class="svc-hist-item">
+        <div class="svc-hist-datetime"><div class="svc-hist-time-big">${e.time||'—'}</div></div>
+        <div class="svc-hist-dot" style="background:${s.color}"></div>
+        <div class="svc-hist-info"><div class="svc-hist-name">${s.name}</div>${e.note?`<div class="svc-hist-note">${e.note}</div>`:''}</div>
+        <span class="svc-hist-price">${fmt(e.tip)}</span>
+      </div>`;
+    }).join('');
+    return `<div class="svc-hist-day-header"><span class="svc-hist-day-label">${fmtDateFull(d)}</span><span class="svc-hist-day-meta">propinas del día: <strong>${fmt(dayTotal)}</strong></span></div>${rows}`;
+  }).join('');
+}
+
+// ── CLIENTES (detección por nombre en la nota) ──
+// Extrae el nombre de cliente de una nota de texto libre. Descarta menciones
+// de propina, comentarios genéricos ("Cliente", "Otro") y avisos del sistema
+// que no son nombres reales.
+function extractClientName(note){
+  if(!note)return null;
+  let n=String(note);
+  n=n.replace(/\+?\$?\s*[\d.,]+\s*propina/gi,'').replace(/propina\s*\$?[\d.,]+/gi,'');
+  n=n.split('·')[0].split(',')[0].trim();
+  n=n.replace(/^[-:]\s*/,'').trim();
+  if(!n)return null;
+  const generic=new Set(['cliente','clientes','otro','walk-in','walkin','n/a','sin nombre','x','-']);
+  if(generic.has(n.toLowerCase()))return null;
+  if(/no coincide|sin equivalente|no reconocido|precio no/i.test(n))return null;
+  if(n.length>40)return null; // demasiado largo: probablemente no es un nombre
+  return n;
+}
+
+function renderClientes(){
+  const clients={};
+  logEntries.forEach(e=>{
+    const name=extractClientName(e.note);
+    if(!name)return;
+    const key=name.toLowerCase();
+    if(!clients[key])clients[key]={name,visits:0,total:0,dates:[]};
+    clients[key].visits++;
+    clients[key].total+=e.price+(e.tip||0);
+    clients[key].dates.push(e.date);
+  });
+
+  const list=Object.values(clients).map(c=>{
+    c.dates.sort();
+    c.first=c.dates[0];c.last=c.dates[c.dates.length-1];
+    if(c.visits>1){
+      const d1=new Date(c.first+'T12:00:00'),d2=new Date(c.last+'T12:00:00');
+      c.avgDays=Math.max(1,Math.round((d2-d1)/(1000*60*60*24)/(c.visits-1)));
+    } else c.avgDays=null;
+    return c;
+  });
+
+  const detEl=document.getElementById('clientes-detectados-s');
+  const premiumEl=document.getElementById('clientes-premium');
+  const frecEl=document.getElementById('clientes-frecuentes');
+  const regEl=document.getElementById('clientes-regulares');
+
+  if(!list.length){
+    detEl.textContent='Todavía no se identificó a ningún cliente por nombre.';
+    const emptyMsg='<div class="empty" style="padding:20px"><i class="ti ti-users"></i><p>Cargá el nombre del cliente en "Nota" al registrar un servicio para empezar a verlo acá</p></div>';
+    premiumEl.innerHTML=emptyMsg;frecEl.innerHTML=emptyMsg;regEl.innerHTML=emptyMsg;
+    return;
+  }
+  detEl.textContent=list.length+' cliente'+(list.length!==1?'s':'')+' identificados por nombre hasta ahora.';
+
+  const bySpend=list.slice().sort((a,b)=>b.total-a.total);
+  const premiumCount=Math.max(1,Math.ceil(list.length*0.2));
+  const premium=bySpend.slice(0,premiumCount);
+  const premiumKeys=new Set(premium.map(c=>c.name.toLowerCase()));
+
+  const frecuentes=list.filter(c=>!premiumKeys.has(c.name.toLowerCase())&&c.visits>=3).sort((a,b)=>b.visits-a.visits);
+  const regulares=list.filter(c=>!premiumKeys.has(c.name.toLowerCase())&&c.visits<3).sort((a,b)=>b.total-a.total);
+
+  function card(c){
+    const freqTxt=c.avgDays?`viene cada ~${c.avgDays} día${c.avgDays!==1?'s':''}`:'una sola visita';
+    return `<div class="stat-row">
+      <div><div style="font-weight:600;font-size:13px;color:var(--ink)">${c.name}</div><div style="font-size:11px;color:var(--ink3);margin-top:1px">${c.visits} visita${c.visits!==1?'s':''} · ${freqTxt}</div></div>
+      <span class="stat-v gold">${fmt(c.total)}</span>
+    </div>`;
+  }
+  const emptyPremium='<div class="empty" style="padding:20px"><i class="ti ti-crown"></i><p>Todavía no hay suficientes datos</p></div>';
+  const emptyFrec='<div class="empty" style="padding:20px"><i class="ti ti-repeat"></i><p>Ningún cliente detectado viene seguido todavía</p></div>';
+  const emptyReg='<div class="empty" style="padding:20px"><i class="ti ti-user"></i><p>Sin datos</p></div>';
+
+  premiumEl.innerHTML=premium.length?premium.map(card).join(''):emptyPremium;
+  frecEl.innerHTML=frecuentes.length?frecuentes.map(card).join(''):emptyFrec;
+  regEl.innerHTML=regulares.length?regulares.map(card).join(''):emptyReg;
+}
+
+function renderAll(){
+  const steps=[renderHero,renderResumen,renderLog,renderSvcHist,renderCatalog,renderHistorial,renderPropinas,renderClientes,updatePeriodLabel,loadProfile];
+  steps.forEach(fn=>{
+    try{fn();}catch(e){console.error('Error en '+fn.name+':',e);}
+  });
+}
+
+// ── INIT ──
+load();
+initLogin();
+
+// Registrar service worker: hace que la app funcione sin internet después de
+// la primera vez que se abrió con conexión. Si el navegador no lo soporta
+// (por ejemplo al abrir el archivo directo como file://, sin subirlo a un
+// hosting como Netlify) simplemente no hace nada — la app sigue funcionando
+// normal, solo que sin esta capa extra de "modo avión".
+if('serviceWorker' in navigator && (location.protocol==='https:'||location.hostname==='localhost')){
+  window.addEventListener('load',()=>{
+    navigator.serviceWorker.register('service-worker.js').catch(err=>console.warn('Service worker no registrado:',err));
+  });
+}
+
+let _resizeT=null;
+window.addEventListener('resize',()=>{
+  clearTimeout(_resizeT);
+  _resizeT=setTimeout(()=>{ try{renderResumen();renderHistorial();}catch(e){} },200);
+});
+
+// ── CUSTOM CONFIRM ──
+let _confirmCallback=null;
+function showConfirm(msg,cb,opts){
+  _confirmCallback=cb;
+  document.getElementById('confirm-msg').textContent=msg;
+  const btn=document.getElementById('confirm-ok-btn');
+
+  // opts.type explicitly controls the button label/style.
+  // Falls back to keyword detection only if no type was passed (legacy calls).
+  const type=(opts&&opts.type)||null;
+
+  if(type==='add'){
+    btn.innerHTML='<i class="ti ti-plus"></i>Añadir nuevos';
+    btn.className='btn btn-primary btn-full';
+  } else if(type==='danger'){
+    btn.innerHTML='<i class="ti ti-trash"></i>Eliminar';
+    btn.className='btn btn-danger btn-full';
+  } else if(type==='confirm'){
+    btn.innerHTML='<i class="ti ti-check"></i>Confirmar';
+    btn.className='btn btn-primary btn-full';
+  } else {
+    // Legacy fallback: guess from wording (kept for any old call sites)
+    if(msg.includes('eliminar')||msg.includes('Eliminar')||msg.includes('Borrar')||msg.includes('borrar')){
+      btn.innerHTML='<i class="ti ti-trash"></i>Eliminar';
+      btn.className='btn btn-danger btn-full';
+    } else if(msg.includes('Importar')||msg.includes('importar')||msg.includes('añadir')||msg.includes('Añadir')||msg.includes('agregar')){
+      btn.innerHTML='<i class="ti ti-plus"></i>Añadir nuevos';
+      btn.className='btn btn-primary btn-full';
+    } else {
+      btn.innerHTML='<i class="ti ti-check"></i>Confirmar';
+      btn.className='btn btn-primary btn-full';
+    }
+  }
+  openModal('modal-confirm');
+}
+function runConfirm(){
+  closeModal('modal-confirm');
+  if(_confirmCallback){_confirmCallback();_confirmCallback=null;}
+}
+
+
+// ── PHOTO CAPTURE → AI EXTRACTION ──
+let photoBase64=null;
+let photoMediaType='image/jpeg';
+let reviewEntries=[]; // {id, date, time, svcName, price, note, include}
+
+function openPhotoCaptureModal(){
+  resetPhotoModal();
+  openModal('modal-photo');
+}
+function closePhotoModal(){
+  closeModal('modal-photo');
+  resetPhotoModal();
+  const el=document.getElementById('review-list');
+  if(el)el._delegated=false; // allow re-attaching listener cleanly next time
+}
+function resetPhotoModal(){
+  photoBase64=null;
+  reviewEntries=[];
+  document.getElementById('photo-step-capture').style.display='';
+  document.getElementById('photo-step-processing').style.display='none';
+  document.getElementById('photo-step-review').style.display='none';
+  document.getElementById('photo-step-error').style.display='none';
+  document.getElementById('photo-confirm-actions').style.display='none';
+  document.getElementById('photo-preview-area').innerHTML=`
+    <div class="photo-capture-choice">
+      <button class="photo-choice-btn" onclick="triggerCameraInput()">
+        <i class="ti ti-camera"></i>
+        <span>Tomar foto</span>
+      </button>
+      <button class="photo-choice-btn" onclick="triggerGalleryInput()">
+        <i class="ti ti-photo"></i>
+        <span>Elegir de galería</span>
+      </button>
+    </div>
+    <small style="display:block;text-align:center;margin-top:10px;color:var(--ink3);font-size:11px">Funciona con agenda, cuaderno, lista de WhatsApp, etc.</small>`;
+}
+function triggerCameraInput(){
+  const inp=document.getElementById('photo-camera-input');
+  inp.value='';
+  inp.click();
+}
+function triggerGalleryInput(){
+  const inp=document.getElementById('photo-gallery-input');
+  inp.value='';
+  inp.click();
+}
+function retakePhoto(){
+  document.getElementById('photo-step-error').style.display='none';
+  document.getElementById('photo-step-review').style.display='none';
+  document.getElementById('photo-step-capture').style.display='';
+  resetPhotoModal();
+}
+
+function handlePhotoSelected(e){
+  const file=e.target.files[0];
+  if(!file)return;
+  const reader=new FileReader();
+  reader.onload=ev=>{
+    const img=new Image();
+    img.onload=()=>{
+      // Resize down if huge, to keep base64 payload reasonable
+      const MAX=1600;
+      let w=img.width,h=img.height;
+      if(w>MAX||h>MAX){
+        const ratio=Math.min(MAX/w,MAX/h);
+        w=Math.round(w*ratio);h=Math.round(h*ratio);
+      }
+      const canvas=document.createElement('canvas');
+      canvas.width=w;canvas.height=h;
+      canvas.getContext('2d').drawImage(img,0,0,w,h);
+      const dataUrl=canvas.toDataURL('image/jpeg',0.85);
+      photoBase64=dataUrl.split(',')[1];
+      photoMediaType='image/jpeg';
+
+      document.getElementById('photo-preview-area').innerHTML=`
+        <div class="photo-preview-wrap"><img src="${dataUrl}"></div>`;
+      document.getElementById('photo-confirm-actions').style.display='flex';
+    };
+    img.src=ev.target.result;
+  };
+  reader.readAsDataURL(file);
+}
+
+async function processPhoto(){
+  if(!photoBase64){toast('Elegí una foto primero');return;}
+  document.getElementById('photo-step-capture').style.display='none';
+  document.getElementById('photo-step-processing').style.display='';
+
+  const svcNames=services.map(s=>s.name).join(', ');
+  const monthField=document.getElementById('photo-import-month').value;
+  const todayStr=monthField?monthField+'-15':today();
+
+  const systemPrompt=`Sos un asistente que extrae datos de servicios de barbería desde una foto de una agenda, cuaderno o lista escrita a mano o digital.
+
+Tu única salida debe ser un JSON válido, sin texto adicional, sin markdown, sin explicación. Formato exacto:
+{"entries":[{"date":"YYYY-MM-DD","time":"HH:MM","service":"nombre","price":NUMERO,"note":"texto o vacío"}]}
+
+Reglas:
+- Si no hay fecha visible en la foto, usá "${todayStr}" para todos los registros.
+- Si no hay hora visible, usá "00:00".
+- El campo "service" debe ser el nombre del servicio tal como aparece escrito (corte, barba, corte+barba, etc). Si la foto usa abreviaturas, expandilas razonablemente. Los servicios conocidos de este barbero son: ${svcNames}. Si el nombre escrito se parece a uno de estos, usá el nombre EXACTO de la lista. Si no se parece a ninguno, usá el texto tal cual aparece.
+- El campo "price" es el monto en pesos, solo el número, sin signos ni puntos (ej: 12000 no $12.000).
+- Si hay nombre de cliente, ponelo en "note". Si no hay nada relevante, dejá "note" vacío.
+- Si una fila no tiene precio visible, poné 0.
+- Ignorá totales, subtotales, encabezados o cualquier fila que no sea un servicio individual.
+- Si la imagen no contiene datos de servicios reconocibles, devolvé {"entries":[]}.
+- NO agregues texto antes o después del JSON. Solo el objeto JSON.`;
+
+  try{
+    const response=await fetch("https://api.anthropic.com/v1/messages",{
+      method:"POST",
+      headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({
+        model:"claude-sonnet-4-6",
+        max_tokens:6000,
+        system:systemPrompt,
+        messages:[
+          {
+            role:"user",
+            content:[
+              {type:"image",source:{type:"base64",media_type:photoMediaType,data:photoBase64}},
+              {type:"text",text:"Extraé todos los servicios de esta foto siguiendo el formato JSON indicado."}
+            ]
+          }
+        ]
+      })
+    });
+
+    if(!response.ok){
+      throw new Error('API respondió '+response.status);
+    }
+
+    const data=await response.json();
+    let text=data.content.map(b=>b.text||'').join('').trim();
+
+    // Clean potential markdown fences
+    text=text.replace(/^```(?:json)?\s*/i,'').replace(/```\s*$/,'').trim();
+
+    let parsed=null;
+    try{
+      parsed=JSON.parse(text);
+    }catch(parseErr){
+      const match=text.match(/\{[\s\S]*\}/);
+      if(match){
+        try{ parsed=JSON.parse(match[0]); }catch(e2){ parsed=null; }
+      }
+      if(!parsed){
+        parsed=recoverTruncatedEntries(text);
+      }
+      if(!parsed)throw parseErr;
+    }
+
+    const entries=parsed.entries||[];
+    if(!entries.length){
+      showPhotoError('No se encontraron servicios en la foto');
+      return;
+    }
+
+    buildReviewEntries(entries);
+    showReviewStep();
+
+  }catch(err){
+    console.error('Photo processing error:',err);
+    showPhotoError('No se pudo procesar la imagen. Probá con mejor luz o encuadre.');
+  }
+}
+
+function showPhotoError(msg){
+  document.getElementById('photo-step-processing').style.display='none';
+  document.getElementById('photo-step-error').style.display='';
+  document.getElementById('photo-error-msg').textContent=msg;
+}
+
+function buildReviewEntries(rawEntries){
+  reviewEntries=rawEntries.map((r,i)=>{
+    // Try to match service name to existing catalog (case-insensitive)
+    let matchedName=r.service||'Servicio';
+    const exact=services.find(s=>s.name.toLowerCase()===String(r.service||'').toLowerCase().trim());
+    if(exact)matchedName=exact.name;
+    // El precio se toma TAL CUAL lo extrajo la IA del texto/foto, sin
+    // adaptarlo al precio actual del catálogo.
+    const price=Number(r.price)||0;
+
+    return {
+      uid:'rev_'+i+'_'+Math.random().toString(36).slice(2,6),
+      date:normalizeDate(r.date)||today(),
+      time:normalizeTime(r.time)||'00:00',
+      svcName:matchedName,
+      price,
+      note:(r.note||'').toString().trim(),
+      include:true
+    };
+  });
+}
+
+function showReviewStep(){
+  document.getElementById('photo-step-processing').style.display='none';
+  document.getElementById('photo-step-review').style.display='';
+  setupReviewListDelegation();
+  renderReviewList();
+}
+
+function renderReviewList(){
+  const el=document.getElementById('review-list');
+  if(!reviewEntries.length){
+    el.innerHTML='<div class="empty" style="padding:24px"><i class="ti ti-mood-empty"></i><p>Sin registros para mostrar</p></div>';
+    updateReviewSummary();
+    return;
+  }
+
+  el.innerHTML=reviewEntries.map((r)=>{
+    const hasMatch=services.some(s=>s.name===r.svcName);
+    const options=services.map(s=>`<option value="${s.name}" ${s.name===r.svcName?'selected':''}>${s.name}</option>`).join('')
+      +(!hasMatch?`<option value="${r.svcName}" selected>${r.svcName} (nuevo)</option>`:'');
+    return `
+    <div class="review-row ${r.include?'':'excluded'}" data-uid="${r.uid}">
+      <div class="review-check ${r.include?'':'off'}" data-action="toggle">
+        ${r.include?'<i class="ti ti-check"></i>':''}
+      </div>
+      <div class="review-fields">
+        <div class="review-fields-row">
+          <select class="review-input review-select" data-field="svcName">${options}</select>
+          <input class="review-input price" type="number" value="${r.price}" data-field="price" placeholder="Precio">
+        </div>
+        <div class="review-fields-row">
+          <input class="review-input date" type="date" value="${r.date}" data-field="date">
+          <input class="review-input time" type="time" value="${r.time}" data-field="time">
+          <input class="review-input" type="text" value="${r.note}" placeholder="Nota" data-field="note">
+        </div>
+      </div>
+      <button class="review-del-btn" data-action="delete"><i class="ti ti-trash" style="font-size:14px"></i></button>
+    </div>`;
+  }).join('');
+
+  updateReviewSummary();
+}
+
+// Event delegation: avoids re-render-on-keystroke bugs that caused duplicate/garbled rows
+function setupReviewListDelegation(){
+  const el=document.getElementById('review-list');
+  if(el._delegated)return; // attach only once
+  el._delegated=true;
+
+  el.addEventListener('click',e=>{
+    const checkEl=e.target.closest('[data-action="toggle"]');
+    if(checkEl){
+      const uid=checkEl.closest('.review-row').dataset.uid;
+      toggleReviewInclude(uid);
+      return;
+    }
+    const delEl=e.target.closest('[data-action="delete"]');
+    if(delEl){
+      const uid=delEl.closest('.review-row').dataset.uid;
+      removeReviewEntry(uid);
+      return;
+    }
+  });
+
+  el.addEventListener('change',e=>{
+    const field=e.target.dataset.field;
+    if(!field)return;
+    const uid=e.target.closest('.review-row').dataset.uid;
+    updateReviewField(uid,field,e.target.value,/*skipRerender=*/field!=='svcName');
+  });
+}
+
+function toggleReviewInclude(uid){
+  const e=reviewEntries.find(x=>x.uid===uid);
+  if(e){e.include=!e.include;renderReviewList();}
+}
+function updateReviewField(uid,field,value,skipRerender){
+  const e=reviewEntries.find(x=>x.uid===uid);
+  if(!e)return;
+  if(field==='price')e[field]=Number(value)||0;
+  else e[field]=value;
+  if(!skipRerender)renderReviewList(); // only svcName needs a re-render (to fix "(nuevo)" tag etc)
+}
+function removeReviewEntry(uid){
+  reviewEntries=reviewEntries.filter(x=>x.uid!==uid);
+  renderReviewList();
+}
+function updateReviewSummary(){
+  const included=reviewEntries.filter(e=>e.include);
+  document.getElementById('review-count').textContent=included.length+' servicio'+(included.length!==1?'s':'')+' seleccionado'+(included.length!==1?'s':'');
+  const total=included.reduce((s,e)=>s+e.price,0);
+  document.getElementById('review-total').textContent=fmt(total);
+}
+
+function confirmReviewEntries(){
+  const included=reviewEntries.filter(e=>e.include);
+  if(!included.length){toast('No hay servicios seleccionados');return;}
+
+  // Ensure services exist in catalog; create if needed
+  const svcMap={};
+  services.forEach(s=>{svcMap[s.name.toLowerCase().trim()]=s.id;});
+
+  let added=0,updated=0;
+  included.forEach(r=>{
+    const key=r.svcName.toLowerCase().trim();
+    let svcId=svcMap[key];
+    if(!svcId){
+      const newSvc={
+        id:'imp_'+Math.random().toString(36).slice(2,8),
+        name:r.svcName,
+        price:r.price,
+        duration:30,
+        color:COLORS[services.length%COLORS.length]
+      };
+      services.push(newSvc);
+      svcMap[key]=newSvc.id;
+      svcId=newSvc.id;
+    }
+    // Si ya hay un registro con la misma fecha+nombre de cliente, se reemplaza en vez de duplicarlo.
+    const result=upsertLogEntry({
+      date:r.date,
+      time:r.time,
+      svcId,
+      price:r.price,
+      note:r.note
+    },()=>'photo_'+Math.random().toString(36).slice(2,10));
+    if(result==='updated')updated++;else added++;
+  });
+
+  save();
+  closePhotoModal();
+  renderAll();
+  let msg=added+' servicio'+(added!==1?'s':'')+' registrado'+(added!==1?'s':'');
+  if(updated>0)msg+=' · '+updated+' actualizado'+(updated!==1?'s':'')+' (mismo cliente y fecha)';
+  toast(msg+' ✓');
+}
+
+// ── TEXT TRANSCRIPTION IMPORT (reuses photo review screen) ──
+function openTextImportModal(){
+  document.getElementById('text-import-area').value='';
+  document.getElementById('text-step-input').style.display='';
+  document.getElementById('text-step-processing').style.display='none';
+  document.getElementById('text-step-error').style.display='none';
+  openModal('modal-text-import');
+}
+function closeTextImportModal(){
+  closeModal('modal-text-import');
+}
+function retakeTextImport(){
+  document.getElementById('text-step-error').style.display='none';
+  document.getElementById('text-step-input').style.display='';
+}
+
+// Recover a usable JSON object even if the response got cut off mid-array.
+// Keeps every fully-closed {...} element found inside "entries":[ ... ] and discards the trailing partial one.
+function recoverTruncatedEntries(text){
+  const arrIdx=text.indexOf('"entries"');
+  if(arrIdx===-1)return null;
+  const bracketIdx=text.indexOf('[',arrIdx);
+  if(bracketIdx===-1)return null;
+
+  let depth=0,inStr=false,esc=false,objStart=-1;
+  const objs=[];
+  for(let i=bracketIdx+1;i<text.length;i++){
+    const ch=text[i];
+    if(inStr){
+      if(esc){esc=false;}
+      else if(ch==='\\'){esc=true;}
+      else if(ch==='"'){inStr=false;}
+      continue;
+    }
+    if(ch==='"'){inStr=true;continue;}
+    if(ch==='{'){if(depth===0)objStart=i;depth++;}
+    else if(ch==='}'){
+      depth--;
+      if(depth===0&&objStart!==-1){
+        objs.push(text.slice(objStart,i+1));
+        objStart=-1;
+      }
+    }
+    else if(ch===']'&&depth===0){break;}
+  }
+  if(!objs.length)return null;
+
+  const entries=[];
+  objs.forEach(o=>{
+    try{ entries.push(JSON.parse(o)); }catch(e){ /* skip malformed piece */ }
+  });
+  return entries.length?{entries}:null;
+}
+
+function splitIntoChunks(raw,maxCharsPerChunk){
+  const lines=raw.split('\n');
+
+  // Detect a possible table/CSV header line (contains common column-name keywords
+  // and a consistent separator), so we can repeat it at the top of every chunk —
+  // this keeps column meaning clear to the AI even when a table gets split mid-way.
+  let headerLine=null;
+  if(lines.length>1){
+    const first=lines[0].toLowerCase();
+    const looksLikeHeader=/fecha|hora|servicio|precio|cliente|monto|date|time|price|service/.test(first)
+      && (first.includes('\t')||first.includes('|')||first.includes(';')||first.includes(','));
+    if(looksLikeHeader)headerLine=lines[0];
+  }
+
+  const bodyLines=headerLine?lines.slice(1):lines;
+  const chunks=[];
+  let current='';
+  for(const line of bodyLines){
+    if((current+'\n'+line).length>maxCharsPerChunk&&current.length>0){
+      chunks.push(current);
+      current=line;
+    } else {
+      current=current?current+'\n'+line:line;
+    }
+  }
+  if(current)chunks.push(current);
+
+  // Re-attach the header to every chunk after the first, so context isn't lost
+  if(headerLine&&chunks.length>1){
+    return chunks.map((c,i)=>i===0?(headerLine+'\n'+c):(headerLine+'\n'+c));
+  }
+  if(headerLine&&chunks.length===1){
+    return [headerLine+'\n'+chunks[0]];
+  }
+  return chunks;
+}
+
+async function callExtractionAPI(chunkText,svcNames,todayStr,currentYear,svcPriceMap){
+  svcPriceMap=svcPriceMap||services.map(s=>s.name+': $'+s.price).join(', ');
+  const systemPrompt=`Sos un experto en extraer datos de servicios de barbería desde transcripciones de texto en CUALQUIER formato posible: notas de celular, WhatsApp, Excel/Sheets copiado y pegado, agendas digitales, cuadernos transcritos, listas con viñetas o números, tablas con tabs o pipes "|", CSV con comas o punto y coma, texto con emojis, mensajes de voz transcritos, o cualquier mezcla de todo eso. El texto puede tener servicios de varios días, semanas o meses mezclados, en cualquier orden, con formato totalmente inconsistente entre líneas.
+
+Tu única salida debe ser un JSON válido, sin texto adicional, sin markdown, sin explicación, sin backticks. Formato exacto:
+{"entries":[{"date":"YYYY-MM-DD","time":"HH:MM","service":"nombre","price":NUMERO,"note":"texto o vacío"}]}
+
+═══ RECONOCIMIENTO DE FECHAS (muy flexible) ═══
+- Formatos posibles: "1/5", "01-05", "1-5-26", "5 de mayo", "5 may", "05/05/2026", "2026-05-05", "lunes 5/5", "5/5/26", "May 5", "5to de mayo", encabezados tipo "=== 5 MAYO ===" o "**5/5**".
+- Asumí año ${currentYear} si no se especifica. Si el día es ambiguo entre formato día/mes vs mes/día, priorizá día/mes (estándar argentino/latino: DD/MM).
+- Si una fecha aparece como encabezado y después le siguen varias líneas de servicios sin fecha propia, aplicá esa fecha a TODAS esas líneas hasta que aparezca una fecha nueva o quede claro que cambió el día.
+- Fechas relativas tipo "ayer", "hoy", "anteayer" se calculan respecto a ${todayStr}.
+- Si una línea menciona solo el día de la semana sin fecha (ej: "lunes: corte 12000"), y no hay otra fecha de referencia cercana, usá "${todayStr}".
+- Si después de todo no hay NINGUNA fecha identificable para una entrada, usá "${todayStr}".
+
+═══ RECONOCIMIENTO DE HORAS ═══
+- Formatos: "10:00", "10hs", "10h", "10 am", "10:30am", "14:00", "2pm", "10.30", "10-11" (tomá la primera hora del rango).
+- Si no hay hora, usá "00:00".
+
+═══ RECONOCIMIENTO DE SERVICIOS ═══
+- El campo "service" debe ser el nombre del servicio. Los servicios conocidos de este barbero son: ${svcNames}, con sus precios habituales: ${svcPriceMap}.
+- Sé MUY flexible con abreviaturas y errores de tipeo: "cd"/"c.deg"/"degra" → Corte Degradado; "cb"/"c+b"/"corte y barba" → Corte + Barba; "cx"/"c exp" → Corte Express; "barb"/"barba simple" → Barba; "perf" → Perfilado. Usá el juicio para emparejar variantes razonables con el nombre EXACTO de la lista de servicios conocidos.
+- Si el texto usa emojis en vez de o junto al nombre (✂️ = corte, 🧔 = barba), interpretalos como parte del nombre del servicio.
+- Si menciona varios servicios para un mismo cliente en una sola línea o renglón (ej: "Juan: corte + barba 18000" o "corte 12000, barba 8000"), separalos en entradas individuales si tienen precios distintos identificables, o como una sola entrada combinada si el servicio compuesto ya existe en la lista de servicios conocidos (ej: "Corte + Barba").
+- Si el nombre no se parece a NINGÚN servicio conocido, usá el texto tal cual aparece, con la primera letra en mayúscula, sin inventar coincidencias forzadas.
+
+═══ MUY IMPORTANTE — LÍNEAS SIN NOMBRE DE SERVICIO EXPLÍCITO ═══
+Es MUY común que la transcripción NO mencione qué servicio fue, y solo tenga "nombre de cliente → precio" (ej: "Cliente \\rightarrow $6.000", "Juan → 12000", "María: 8000"). Esto NO es un motivo para descartar la línea. En ese caso:
+- Comparpá el precio de la línea con los precios habituales de los servicios conocidos (${svcPriceMap}) y elegí el servicio cuyo precio coincida exacto o esté más cerca.
+- Si el precio no coincide con ninguno, usá el nombre del servicio más vendido o más económico de la lista como mejor estimación, y agregá en "note" algo como "precio no coincide con catálogo" para que el barbero lo revise.
+- NUNCA omitas una entrada solo porque no diga el nombre del servicio — siempre asigná el mejor candidato posible. Es preferible una entrada con servicio adivinado por precio a no registrar el ingreso en absoluto.
+- El nombre del cliente (lo que esté antes de "→", "->", "\\rightarrow", ":", o un guion) va siempre en el campo "note", nunca se descarta.
+
+═══ RECONOCIMIENTO DE PRECIOS ═══
+- El campo "price" es el monto en pesos, SOLO el número entero, sin signos de moneda, sin puntos de miles, sin comas decimales (ej: "$12.000" → 12000; "12,000" → 12000; "12k" → 12000; "$15.500,00" → 15500).
+- Si el precio viene en formato "12.5" o "12,5" seguido de "k" o "mil", interpretalo como miles (12.5k = 12500).
+- Si una entrada no tiene precio visible, poné 0 — NUNCA inventes un precio.
+
+═══ FORMATO TABLA / CSV / PLANILLA ═══
+- Si detectás columnas separadas por tabs, pipes "|", punto y coma ";" o comas en un patrón tabular consistente, interpretalas como columnas de una tabla (probablemente: fecha, hora, servicio, precio, cliente — en algún orden). Usá los encabezados de la primera fila si existen para mapear qué columna es cuál.
+- Si no hay encabezados, inferí el orden de columnas por el tipo de dato (una columna con solo números grandes es precio, una con formato de fecha es fecha, etc).
+
+═══ NOTAS Y CLIENTES ═══
+- Si hay nombre de cliente, comentario, o dato de propina, ponelo en "note". Combiná varios datos en la nota si corresponde (ej: "Juan · +2000 propina").
+- Si no hay nada relevante, dejá "note" vacío.
+
+═══ QUÉ IGNORAR ═══
+- Ignorá totales, subtotales, resúmenes, encabezados de sección que no sean fechas reales, líneas separadoras (----, ====, ***), o cualquier línea que claramente no describa un servicio individual prestado a un cliente.
+- Si el texto no contiene datos de servicios reconocibles en absoluto, devolvé {"entries":[]}.
+
+═══ SALIDA ═══
+- NO agregues texto antes o después del JSON. Solo el objeto JSON, nada más.
+- Sé exhaustivo: es mejor incluir una entrada con datos parciales (precio 0 si no se sabe) que omitirla por completo.`;
+
+  const MAX_RETRIES=2;
+  let lastErr=null;
+
+  for(let attempt=0;attempt<=MAX_RETRIES;attempt++){
+    try{
+      const response=await fetch("https://api.anthropic.com/v1/messages",{
+        method:"POST",
+        headers:{"Content-Type":"application/json"},
+        body:JSON.stringify({
+          model:"claude-sonnet-4-6",
+          max_tokens:8000,
+          system:systemPrompt,
+          messages:[
+            {role:"user",content:"Extraé todos los servicios de esta transcripción siguiendo el formato JSON indicado:\n\n"+chunkText}
+          ]
+        })
+      });
+
+      if(!response.ok){
+        // Retry on transient server-side errors (rate limit, overload, gateway issues)
+        if([429,500,502,503,529].includes(response.status)&&attempt<MAX_RETRIES){
+          await new Promise(r=>setTimeout(r,800*(attempt+1)));
+          continue;
+        }
+        throw new Error('API respondió '+response.status);
+      }
+
+      const data=await response.json();
+      const wasTruncated=data.stop_reason==='max_tokens';
+      let text=data.content.map(b=>b.text||'').join('').trim();
+      text=text.replace(/^```(?:json)?\s*/i,'').replace(/```\s*$/,'').trim();
+
+      let parsed=null;
+      try{
+        parsed=JSON.parse(text);
+      }catch(parseErr){
+        const match=text.match(/\{[\s\S]*\}/);
+        if(match){
+          try{ parsed=JSON.parse(match[0]); }catch(e2){ parsed=null; }
+        }
+        if(!parsed){
+          parsed=recoverTruncatedEntries(text);
+        }
+      }
+
+      if(!parsed){
+        // Couldn't make sense of the response at all — retry once more if possible
+        if(attempt<MAX_RETRIES){
+          await new Promise(r=>setTimeout(r,500));
+          continue;
+        }
+        throw new Error('No se pudo interpretar la respuesta');
+      }
+
+      return {entries:parsed.entries||[],truncated:wasTruncated};
+
+    }catch(err){
+      lastErr=err;
+      if(attempt<MAX_RETRIES){
+        await new Promise(r=>setTimeout(r,800*(attempt+1)));
+        continue;
+      }
+    }
+  }
+
+  // All retries exhausted for this chunk — surface a soft failure instead of
+  // throwing, so the caller can skip just this chunk and keep the rest.
+  console.error('Chunk failed after retries:',lastErr);
+  return {entries:[],truncated:false,failed:true};
+}
+
+async function processTextImport(){
+  const raw=document.getElementById('text-import-area').value.trim();
+  if(!raw){toast('Pegá el texto primero');return;}
+
+  document.getElementById('text-step-input').style.display='none';
+  document.getElementById('text-step-processing').style.display='';
+
+  const svcNames=services.map(s=>s.name).join(', ');
+  const svcPriceMap=services.map(s=>s.name+': $'+s.price).join(', ');
+  const monthField=document.getElementById('text-import-month').value; // "YYYY-MM" o vacío
+  const todayStr=monthField?monthField+'-15':today();
+  const currentYear=monthField?parseInt(monthField.split('-')[0],10):new Date().getFullYear();
+
+  // For very long transcriptions, split into chunks so no single API call
+  // has to emit a huge JSON array that risks getting cut off. Made larger
+  // and given a higher cap so genuinely long pasted text (months of data)
+  // is accepted rather than silently rejected.
+  const CHUNK_SIZE=7000; // characters of source text per chunk
+  const MAX_CHUNKS=40;   // generous ceiling — handles very large pastes
+  let chunks=raw.length>CHUNK_SIZE?splitIntoChunks(raw,CHUNK_SIZE):[raw];
+  if(chunks.length>MAX_CHUNKS){
+    // Extremely long input: merge the tail so we still process everything,
+    // just in fewer, larger calls instead of refusing outright.
+    const head=chunks.slice(0,MAX_CHUNKS-1);
+    const tail=chunks.slice(MAX_CHUNKS-1).join('\n');
+    chunks=[...head,tail];
+  }
+
+  const procEl=document.querySelector('#text-step-processing .ai-processing-sub');
+
+  let allEntries=[];
+  let anyTruncated=false;
+  let failedChunks=0;
+
+  for(let i=0;i<chunks.length;i++){
+    if(procEl&&chunks.length>1){
+      procEl.textContent=`Procesando parte ${i+1} de ${chunks.length}…`;
+    }
+    try{
+      const result=await callExtractionAPI(chunks[i],svcNames,todayStr,currentYear,svcPriceMap);
+      if(result.failed){
+        failedChunks++;
+      } else {
+        allEntries=allEntries.concat(result.entries);
+        if(result.truncated)anyTruncated=true;
+      }
+    }catch(err){
+      // Should rarely happen now (callExtractionAPI itself retries and returns
+      // a soft failure instead of throwing), but guard anyway so one bad
+      // chunk never aborts everything else that already succeeded.
+      console.error('Chunk',i,'unexpected error:',err);
+      failedChunks++;
+    }
+  }
+
+  if(!allEntries.length){
+    if(failedChunks>0){
+      showTextImportError('No se pudo conectar con el servicio de IA. Revisá tu conexión e intentá de nuevo.');
+    } else {
+      showTextImportError('No se encontraron servicios en el texto');
+    }
+    return;
+  }
+
+  buildReviewEntries(allEntries);
+  closeTextImportModal();
+  openModal('modal-photo');
+  document.getElementById('photo-step-capture').style.display='none';
+  document.getElementById('photo-step-processing').style.display='none';
+  document.getElementById('photo-step-error').style.display='none';
+  showReviewStep();
+
+  if(failedChunks>0){
+    toast(`Se procesaron ${chunks.length-failedChunks} de ${chunks.length} partes — revisá si falta algo`);
+  } else if(anyTruncated){
+    toast('Algunos datos pueden faltar — revisá la lista antes de guardar');
+  }
+}
+
+function showTextImportError(msg){
+  document.getElementById('text-step-processing').style.display='none';
+  document.getElementById('text-step-error').style.display='';
+  document.getElementById('text-error-msg').textContent=msg;
+}
+</script>
+
+
+
+
+<!-- MODAL: TEXT TRANSCRIPTION IMPORT -->
+<div class="modal-overlay" id="modal-text-import">
+  <div class="modal" style="max-height:94dvh">
+    <div class="modal-hdr">
+      <div class="modal-title">Pegar transcripción</div>
+      <button class="modal-close" onclick="closeTextImportModal()">✕</button>
+    </div>
+
+    <div id="text-step-input">
+      <p style="font-size:12px;color:var(--ink3);margin-bottom:10px">Pegá el texto con tus servicios de meses anteriores. Puede ser una lista larga, en cualquier orden o formato — la IA va a identificar fecha, hora, servicio y precio de cada línea.</p>
+      <div class="form-group">
+        <label class="form-label">Mes de estos registros</label>
+        <input type="month" class="form-input" id="text-import-month">
+        <div class="form-hint">Si alguna línea no trae fecha clara, se le asigna un día de ESTE mes (no el mes actual real). Dejalo vacío para usar el mes en curso.</div>
+      </div>
+      <textarea id="text-import-area" class="form-input" rows="10" style="resize:none;font-size:13px;line-height:1.5" placeholder="Ej:&#10;1/5 10:00 corte 12000&#10;1/5 11:30 corte+barba 20000 Juan&#10;2/5 corte 12000, barba 10000..."></textarea>
+      <div style="display:flex;gap:8px;margin-top:14px">
+        <button class="btn btn-ghost btn-full" onclick="closeTextImportModal()">Cancelar</button>
+        <button class="btn btn-primary btn-full" onclick="processTextImport()"><i class="ti ti-sparkles"></i>Extraer datos</button>
+      </div>
+    </div>
+
+    <div id="text-step-processing" style="display:none">
+      <div class="ai-processing">
+        <div class="ai-spinner"></div>
+        <div class="ai-processing-text">Leyendo la transcripción…</div>
+        <div class="ai-processing-sub">Identificando servicios, fechas y precios</div>
+      </div>
+    </div>
+
+    <div id="text-step-error" style="display:none">
+      <div class="ai-processing">
+        <i class="ti ti-alert-triangle" style="font-size:36px;color:var(--red)"></i>
+        <div class="ai-processing-text" id="text-error-msg">No se pudo procesar el texto</div>
+        <div class="ai-processing-sub">Revisá que tenga datos de servicios</div>
+      </div>
+      <button class="btn btn-ghost btn-full" onclick="retakeTextImport()"><i class="ti ti-refresh"></i>Intentar de nuevo</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: PHOTO CAPTURE -->
+<div class="modal-overlay" id="modal-photo">
+  <div class="modal" style="max-height:94dvh">
+    <div class="modal-hdr">
+      <div class="modal-title">Escanear servicios</div>
+      <button class="modal-close" onclick="closePhotoModal()">✕</button>
+    </div>
+
+    <div id="photo-step-capture">
+      <div class="form-group">
+        <label class="form-label">Mes de estos registros</label>
+        <input type="month" class="form-input" id="photo-import-month">
+        <div class="form-hint">Si la foto no muestra fecha clara, se usa un día de ESTE mes. Dejalo vacío para el mes en curso.</div>
+      </div>
+      <div id="photo-preview-area">
+        <div class="photo-capture-choice">
+          <button class="photo-choice-btn" onclick="triggerCameraInput()">
+            <i class="ti ti-camera"></i>
+            <span>Tomar foto</span>
+          </button>
+          <button class="photo-choice-btn" onclick="triggerGalleryInput()">
+            <i class="ti ti-photo"></i>
+            <span>Elegir de galería</span>
+          </button>
+        </div>
+        <small style="display:block;text-align:center;margin-top:10px;color:var(--ink3);font-size:11px">Funciona con agenda, cuaderno, lista de WhatsApp, etc.</small>
+      </div>
+      <input type="file" id="photo-camera-input" accept="image/*" capture="environment" style="display:none" onchange="handlePhotoSelected(event)">
+      <input type="file" id="photo-gallery-input" accept="image/*" style="display:none" onchange="handlePhotoSelected(event)">
+      <div id="photo-confirm-actions" style="display:none;gap:8px;margin-top:4px">
+        <button class="btn btn-ghost btn-full" onclick="retakePhoto()"><i class="ti ti-refresh"></i>Cambiar foto</button>
+        <button class="btn btn-primary btn-full" onclick="processPhoto()"><i class="ti ti-sparkles"></i>Extraer datos</button>
+      </div>
+    </div>
+
+    <div id="photo-step-processing" style="display:none">
+      <div class="ai-processing">
+        <div class="ai-spinner"></div>
+        <div class="ai-processing-text">Leyendo la foto…</div>
+        <div class="ai-processing-sub">Identificando servicios, horas y precios</div>
+      </div>
+    </div>
+
+    <div id="photo-step-review" style="display:none">
+      <p style="font-size:12px;color:var(--ink3);margin-bottom:10px">Revisá y editá lo que encontramos. Desmarcá lo que no quieras guardar.</p>
+      <div class="card" style="margin-bottom:14px">
+        <div id="review-list"></div>
+        <div class="review-summary">
+          <span id="review-count">0 servicios</span>
+          <span id="review-total">$0</span>
+        </div>
+      </div>
+      <div style="display:flex;gap:8px">
+        <button class="btn btn-ghost btn-full" onclick="closePhotoModal()">Cancelar</button>
+        <button class="btn btn-primary btn-full" onclick="confirmReviewEntries()"><i class="ti ti-check"></i>Guardar registros</button>
+      </div>
+    </div>
+
+    <div id="photo-step-error" style="display:none">
+      <div class="ai-processing">
+        <i class="ti ti-alert-triangle" style="font-size:36px;color:var(--red)"></i>
+        <div class="ai-processing-text" id="photo-error-msg">No se pudo leer la foto</div>
+        <div class="ai-processing-sub">Probá con mejor luz o más cerca del texto</div>
+      </div>
+      <button class="btn btn-ghost btn-full" onclick="retakePhoto()"><i class="ti ti-refresh"></i>Intentar de nuevo</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: PASTE JSON -->
+<div class="modal-overlay" id="modal-paste-json">
+  <div class="modal">
+    <div class="modal-hdr">
+      <div class="modal-title">Pegar JSON</div>
+      <button class="modal-close" onclick="closeModal('modal-paste-json')">✕</button>
+    </div>
+    <p style="font-size:12px;color:var(--ink3);margin-bottom:10px">Copiá el contenido del archivo JSON y pegalo acá:</p>
+    <textarea id="paste-json-area" class="form-input" rows="8" style="resize:none;font-family:'Space Mono',monospace;font-size:11px;line-height:1.5" placeholder='{ "registros": [...] }'></textarea>
+    <div style="display:flex;gap:8px;margin-top:12px">
+      <button class="btn btn-ghost btn-full" onclick="closeModal('modal-paste-json')">Cancelar</button>
+      <button class="btn btn-primary btn-full" onclick="importFromPaste()"><i class="ti ti-check"></i>Importar</button>
+    </div>
+  </div>
+</div>
+<!-- MODAL: CONFIRM -->
+<div class="modal-overlay" id="modal-confirm">
+  <div class="modal" style="max-height:auto">
+    <div class="modal-hdr"><div class="modal-title">Confirmar</div><button class="modal-close" onclick="closeModal('modal-confirm')">✕</button></div>
+    <p id="confirm-msg" style="font-size:14px;color:var(--ink2);line-height:1.6;margin-bottom:20px"></p>
+    <div style="display:flex;gap:8px">
+      <button class="btn btn-ghost btn-full" onclick="closeModal('modal-confirm')">Cancelar</button>
+      <button class="btn btn-danger btn-full" id="confirm-ok-btn" onclick="runConfirm()"><i class="ti ti-trash"></i>Eliminar</button>
+    </div>
+  </div>
+</div>
+</body>
+</html>
