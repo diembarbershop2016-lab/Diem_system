@@ -243,13 +243,13 @@ button, .nav-tab, .btn, .pin-key, .month-row, .swatch, .view-toggle-btn, .log-de
 .view-toggle-btn.active{background:var(--card);color:var(--ink);box-shadow:0 1px 3px rgba(0,0,0,.08)}
 
 /* FAB */
-.fab-group{position:fixed;bottom:calc(24px + env(safe-area-inset-bottom));left:max(16px, calc(50% - 320px + 16px));z-index:50;display:flex;flex-direction:column;align-items:center;gap:10px}
+.fab-group{position:sticky;top:53px;z-index:9;background:var(--card);border-bottom:1px solid var(--border);display:flex;flex-direction:row;justify-content:center;align-items:center;gap:14px;padding:8px 12px;box-shadow:0 2px 8px rgba(0,0,0,.07)}
 .fab:hover, .fab-secondary:hover{filter:brightness(1.08)}
-.fab{width:52px;height:52px;border-radius:50%;background:var(--ink);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 16px rgba(0,0,0,.25);transition:transform .15s}
+.fab{width:42px;height:42px;border-radius:50%;background:var(--ink);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 16px rgba(0,0,0,.25);transition:transform .15s}
 .fab:active{transform:scale(.94)}
-.fab i{font-size:22px;color:var(--gold)}
-.fab-secondary{width:42px;height:42px;background:var(--card);border:1px solid var(--border2)}
-.fab-secondary i{font-size:18px;color:var(--ink2)}
+.fab i{font-size:19px;color:var(--gold)}
+.fab-secondary{width:38px;height:38px;background:var(--bg);border:1px solid var(--border2)}
+.fab-secondary i{font-size:16px;color:var(--ink2)}
 
 /* EMPTY */
 .empty{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:36px 20px;text-align:center;gap:10px;color:var(--ink3)}
@@ -399,6 +399,12 @@ button, .nav-tab, .btn, .pin-key, .month-row, .swatch, .view-toggle-btn, .log-de
   <button class="nav-tab" onclick="sw('propinas',this)"><i class="ti ti-cash"></i><span>Propinas</span></button>
   <button class="nav-tab" onclick="sw('clientes',this)"><i class="ti ti-users"></i><span>Clientes</span></button>
   <button class="nav-tab" onclick="sw('ajustes',this)"><i class="ti ti-settings"></i><span>Ajustes</span></button>
+</div>
+
+<div class="fab-group">
+  <button class="fab fab-secondary" onclick="openTextImportModal()" title="Pegar transcripción"><i class="ti ti-clipboard-text"></i></button>
+  <button class="fab fab-secondary" onclick="openPhotoCaptureModal()" title="Escanear foto"><i class="ti ti-camera"></i></button>
+  <button class="fab" onclick="openLogModal()" title="Registrar servicio"><i class="ti ti-plus"></i></button>
 </div>
 
 <div class="content">
@@ -622,11 +628,6 @@ button, .nav-tab, .btn, .pin-key, .month-row, .swatch, .view-toggle-btn, .log-de
   <button onclick="deleteSelected()" style="background:var(--red);border:none;color:#fff;padding:8px 16px;border-radius:12px;font-family:inherit;font-size:13px;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:6px;white-space:nowrap"><i class="ti ti-trash" style="font-size:15px"></i>Eliminar</button>
 </div>
 
-<div class="fab-group">
-  <button class="fab fab-secondary" onclick="openTextImportModal()" title="Pegar transcripción"><i class="ti ti-clipboard-text"></i></button>
-  <button class="fab fab-secondary" onclick="openPhotoCaptureModal()" title="Escanear foto"><i class="ti ti-camera"></i></button>
-  <button class="fab" onclick="openLogModal()" title="Registrar servicio"><i class="ti ti-plus"></i></button>
-</div>
 <div class="toast" id="toast"></div>
 
 <!-- MODAL: PERIOD -->
