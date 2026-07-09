@@ -29,6 +29,15 @@ app.use(cookieSession({
   sameSite: 'lax',
 }));
 
+// Railway's proxy chain has more than one hop, so req.ip (trust proxy: 1)
+// resolves to a rotating internal edge IP, not the real client. The real
+// client is the first (leftmost) entry in X-Forwarded-For.
+function getClientIp(req) {
+  const xff = req.headers['x-forwarded-for'];
+  if (xff) return xff.split(',')[0].trim();
+  return req.socket.remoteAddress;
+}
+
 const MAX_LOGIN_ATTEMPTS = 5;
 const LOGIN_LOCKOUT_MS = 5 * 60 * 1000;
 const loginAttempts = new Map();
@@ -74,10 +83,6 @@ function requireAuth(req, res, next) {
   res.status(401).json({ error: 'unauthorized' });
 }
 
-app.get('/api/_debug_ip', (req, res) => {
-  res.json({ ip: req.ip, xff: req.headers['x-forwarded-for'], ips: req.ips });
-});
-
 app.get('/api/branding', async (req, res) => {
   const { rows } = await pool.query(
     "SELECT key, value FROM settings WHERE key IN ('barber_name','barber_sub','logo_data','pin_is_default')"
@@ -88,7 +93,8 @@ app.get('/api/branding', async (req, res) => {
 });
 
 app.post('/api/login', async (req, res) => {
-  if (loginLockedOut(req.ip)) {
+  const ip = getClientIp(req);
+  if (loginLockedOut(ip)) {
     return res.status(429).json({ error: 'too_many_attempts' });
   }
   const pin = String(req.body.pin || '');
@@ -96,10 +102,10 @@ app.post('/api/login', async (req, res) => {
   const hash = rows[0] && rows[0].value;
   const ok = hash && await bcrypt.compare(pin, hash);
   if (!ok) {
-    recordLoginFailure(req.ip);
+    recordLoginFailure(ip);
     return res.status(401).json({ error: 'invalid_pin' });
   }
-  recordLoginSuccess(req.ip);
+  recordLoginSuccess(ip);
   req.session.authed = true;
   res.json({ ok: true });
 });
