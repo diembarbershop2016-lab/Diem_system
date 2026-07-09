@@ -192,6 +192,31 @@ app.put('/api/state', requireAuth, async (req, res) => {
   }
 });
 
+// Proxies the photo/transcription-extraction calls to Claude. The frontend
+// used to call api.anthropic.com directly with no API key at all (always
+// failed); routing it through here keeps the key server-side only.
+app.post('/api/ai/messages', requireAuth, async (req, res) => {
+  if (!process.env.ANTHROPIC_API_KEY) {
+    return res.status(501).json({ error: 'ai_not_configured' });
+  }
+  try {
+    const upstream = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': process.env.ANTHROPIC_API_KEY,
+        'anthropic-version': '2023-06-01',
+      },
+      body: JSON.stringify(req.body),
+    });
+    const data = await upstream.json();
+    res.status(upstream.status).json(data);
+  } catch (err) {
+    console.error('anthropic proxy failed', err);
+    res.status(502).json({ error: 'upstream_failed' });
+  }
+});
+
 app.use(express.static(__dirname));
 
 const PORT = process.env.PORT || 3000;

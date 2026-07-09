@@ -2154,11 +2154,12 @@ Reglas:
 - NO agregues texto antes o después del JSON. Solo el objeto JSON.`;
 
   try{
-    const response=await fetch("https://api.anthropic.com/v1/messages",{
+    const response=await fetch("/api/ai/messages",{
       method:"POST",
+      credentials:"include",
       headers:{"Content-Type":"application/json"},
       body:JSON.stringify({
-        model:"claude-sonnet-4-6",
+        model:"claude-sonnet-5",
         max_tokens:6000,
         system:systemPrompt,
         messages:[
@@ -2173,6 +2174,10 @@ Reglas:
       })
     });
 
+    if(response.status===501){
+      showPhotoError('Función de IA no configurada todavía (falta la clave de API en el servidor)');
+      return;
+    }
     if(!response.ok){
       throw new Error('API respondió '+response.status);
     }
@@ -2527,11 +2532,12 @@ Es MUY común que la transcripción NO mencione qué servicio fue, y solo tenga 
 
   for(let attempt=0;attempt<=MAX_RETRIES;attempt++){
     try{
-      const response=await fetch("https://api.anthropic.com/v1/messages",{
+      const response=await fetch("/api/ai/messages",{
         method:"POST",
+        credentials:"include",
         headers:{"Content-Type":"application/json"},
         body:JSON.stringify({
-          model:"claude-sonnet-4-6",
+          model:"claude-sonnet-5",
           max_tokens:8000,
           system:systemPrompt,
           messages:[
@@ -2540,6 +2546,9 @@ Es MUY común que la transcripción NO mencione qué servicio fue, y solo tenga 
         })
       });
 
+      if(response.status===501){
+        throw new Error('ai_not_configured');
+      }
       if(!response.ok){
         // Retry on transient server-side errors (rate limit, overload, gateway issues)
         if([429,500,502,503,529].includes(response.status)&&attempt<MAX_RETRIES){
