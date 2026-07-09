@@ -74,6 +74,10 @@ function requireAuth(req, res, next) {
   res.status(401).json({ error: 'unauthorized' });
 }
 
+app.get('/api/_debug_ip', (req, res) => {
+  res.json({ ip: req.ip, xff: req.headers['x-forwarded-for'], ips: req.ips });
+});
+
 app.get('/api/branding', async (req, res) => {
   const { rows } = await pool.query(
     "SELECT key, value FROM settings WHERE key IN ('barber_name','barber_sub','logo_data','pin_is_default')"
