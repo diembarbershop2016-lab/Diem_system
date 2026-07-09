@@ -19,6 +19,7 @@ const DEFAULT_SERVICES = [
 ];
 
 const app = express();
+app.set('trust proxy', 1);
 app.use(express.json({ limit: '5mb' }));
 app.use(cookieSession({
   name: 'diem_session',
@@ -27,6 +28,26 @@ app.use(cookieSession({
   httpOnly: true,
   sameSite: 'lax',
 }));
+
+const MAX_LOGIN_ATTEMPTS = 5;
+const LOGIN_LOCKOUT_MS = 5 * 60 * 1000;
+const loginAttempts = new Map();
+function loginLockedOut(ip) {
+  const entry = loginAttempts.get(ip);
+  return !!(entry && entry.lockUntil && Date.now() < entry.lockUntil);
+}
+function recordLoginFailure(ip) {
+  const entry = loginAttempts.get(ip) || { count: 0 };
+  entry.count += 1;
+  if (entry.count >= MAX_LOGIN_ATTEMPTS) {
+    entry.lockUntil = Date.now() + LOGIN_LOCKOUT_MS;
+    entry.count = 0;
+  }
+  loginAttempts.set(ip, entry);
+}
+function recordLoginSuccess(ip) {
+  loginAttempts.delete(ip);
+}
 
 async function ensureBootstrap() {
   const { rows } = await pool.query("SELECT value FROM settings WHERE key = 'pin_hash'");
@@ -63,11 +84,18 @@ app.get('/api/branding', async (req, res) => {
 });
 
 app.post('/api/login', async (req, res) => {
+  if (loginLockedOut(req.ip)) {
+    return res.status(429).json({ error: 'too_many_attempts' });
+  }
   const pin = String(req.body.pin || '');
   const { rows } = await pool.query("SELECT value FROM settings WHERE key = 'pin_hash'");
   const hash = rows[0] && rows[0].value;
   const ok = hash && await bcrypt.compare(pin, hash);
-  if (!ok) return res.status(401).json({ error: 'invalid_pin' });
+  if (!ok) {
+    recordLoginFailure(req.ip);
+    return res.status(401).json({ error: 'invalid_pin' });
+  }
+  recordLoginSuccess(req.ip);
   req.session.authed = true;
   res.json({ ok: true });
 });

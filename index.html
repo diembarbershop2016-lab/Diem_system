@@ -948,8 +948,8 @@ function pinDel(){pinBuffer=pinBuffer.slice(0,-1);updatePinDots();document.getEl
 function updatePinDots(){for(let i=0;i<4;i++){const d=document.getElementById('pd'+i);d.classList.toggle('filled',i<pinBuffer.length);d.classList.remove('error');}}
 async function checkPin(){
   const pin=pinBuffer;
-  let ok=false;
-  try{await apiFetch('/api/login',{method:'POST',body:JSON.stringify({pin})});ok=true;}catch(e){ok=false;}
+  let ok=false,locked=false;
+  try{await apiFetch('/api/login',{method:'POST',body:JSON.stringify({pin})});ok=true;}catch(e){locked=e.status===429;}
   if(ok){
     await load();
     document.getElementById('login-screen').style.display='none';
@@ -957,8 +957,8 @@ async function checkPin(){
     renderAll();
   } else {
     document.querySelectorAll('.pin-dot').forEach(d=>{d.classList.add('error','filled');});
-    document.getElementById('login-error').textContent='PIN incorrecto, intentá de nuevo';
-    setTimeout(()=>{pinBuffer='';updatePinDots();document.getElementById('login-error').textContent='';},900);
+    document.getElementById('login-error').textContent=locked?'Demasiados intentos, esperá unos minutos':'PIN incorrecto, intentá de nuevo';
+    setTimeout(()=>{pinBuffer='';updatePinDots();document.getElementById('login-error').textContent='';},locked?2000:900);
   }
 }
 function lockApp(){apiFetch('/api/logout',{method:'POST'}).catch(()=>{});document.getElementById('main-app').style.display='none';document.getElementById('login-screen').style.display='flex';initLogin();}
