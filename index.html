@@ -893,7 +893,7 @@ const fmtK=n=>n>=1000000?'$'+(n/1000000).toFixed(2)+'M':n>=1000?'$'+Math.round(n
 const today=()=>new Date().toISOString().slice(0,10);
 const nowTime=()=>new Date().toTimeString().slice(0,5);
 const yesterday=()=>{const d=new Date();d.setDate(d.getDate()-1);const pad=n=>String(n).padStart(2,'0');return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;};
-function getSvc(id){return services.find(s=>s.id===id)||{name:'Eliminado',price:0,color:'#ccc',duration:0};}
+function getSvc(id,fallbackName){return services.find(s=>s.id===id)||{name:fallbackName||'Eliminado',price:0,color:'#ccc',duration:0};}
 function fmtDate(d){const p=d.split('-');return p[2]+'/'+p[1];}
 function fmtDateShort(d){const p=d.split('-');return p[2]+'/'+MONTHS_ES[parseInt(p[1])-1];}
 function fmtDateFull(d){
@@ -1059,9 +1059,10 @@ function openLogModal(id=null){
 function saveLog(){
   const date=document.getElementById('log-date').value;const time=document.getElementById('log-time').value;const svcId=document.getElementById('log-svc-select').value;const price=parseFloat(document.getElementById('log-price').value)||0;const tip=parseFloat(document.getElementById('log-tip').value)||0;const note=document.getElementById('log-note').value.trim();
   if(!date||!svcId){toast('Completá fecha y servicio');return;}
-  if(editingLogId){const idx=logEntries.findIndex(e=>e.id===editingLogId);if(idx>-1)logEntries[idx]={...logEntries[idx],date,time,svcId,price,tip,note};toast('Registro actualizado ✓');}
+  const serviceNameSnapshot=getSvc(svcId).name;
+  if(editingLogId){const idx=logEntries.findIndex(e=>e.id===editingLogId);if(idx>-1)logEntries[idx]={...logEntries[idx],date,time,svcId,price,tip,note,serviceNameSnapshot};toast('Registro actualizado ✓');}
   else{
-    const result=upsertLogEntry({date,time,svcId,price,tip,note},uid);
+    const result=upsertLogEntry({date,time,svcId,price,tip,note,serviceNameSnapshot},uid);
     toast(result==='updated'?'Ya existía un registro de ese cliente en esa fecha — actualizado ✓':'Servicio registrado ✓');
   }
   save();closeModal('modal-log');renderAll();
@@ -1137,7 +1138,7 @@ function renderLog(){
       weekHtml+=`<div class="log-day-header"><span>${dowLabel(date)} ${fmtDateDMY(date)}</span><span class="log-day-meta">${de.length} svc${de.length!==1?'s':''} · <span class="log-day-total">${fmt(dt)}</span>${tipDay?` · propinas ${fmt(tipDay)}`:''}</span></div>`;
       weekHtml+=`<div class="card" style="border-radius:0;border-left:none;border-right:none;border-top:none;box-shadow:none">`;
       de.forEach(e=>{
-        const s=getSvc(e.svcId);
+        const s=getSvc(e.svcId,e.serviceNameSnapshot);
         const noteHtml=[e.note].filter(Boolean).join(' · ');
         const tipHtml=e.tip?`<div class="log-note-txt">Propina ${fmt(e.tip)}</div>`:'';
         weekHtml+=`<div class="log-item">
@@ -1283,7 +1284,7 @@ function renderSvcHist(){
     </div>`;
 
     dayEntries.forEach(e=>{
-      const s=getSvc(e.svcId);
+      const s=getSvc(e.svcId,e.serviceNameSnapshot);
       const isSel=selectedIds.has(e.id);
       const noteLines=[];
       if(e.note)noteLines.push(e.note);
@@ -1411,9 +1412,9 @@ function renderResumen(){
   // Mix
   const mixEl=document.getElementById('mix-list');
   if(!entries.length){mixEl.innerHTML='<div class="empty"><i class="ti ti-scissors"></i><p>Sin registros todavía</p></div>';return;}
-  const bySvc={};entries.forEach(e=>{if(!bySvc[e.svcId])bySvc[e.svcId]={cnt:0,total:0};bySvc[e.svcId].cnt++;bySvc[e.svcId].total+=e.price+(e.tip||0);});
+  const bySvc={};entries.forEach(e=>{if(!bySvc[e.svcId])bySvc[e.svcId]={cnt:0,total:0,name:e.serviceNameSnapshot};bySvc[e.svcId].cnt++;bySvc[e.svcId].total+=e.price+(e.tip||0);});
   const sorted=Object.entries(bySvc).sort((a,b)=>b[1].cnt-a[1].cnt);const maxC=sorted[0][1].cnt;
-  mixEl.innerHTML=sorted.map(([id,d],i)=>{const s=getSvc(id);const pct=Math.round(d.cnt/maxC*100);return `<div class="svc-catalog-item" style="padding:10px 14px"><span style="font-size:10px;color:var(--ink3);font-family:'Space Mono',monospace;min-width:16px">${i+1}</span><div class="svc-color-dot" style="background:${s.color}"></div><div style="flex:1"><div style="font-size:13px;font-weight:500">${s.name}</div><div style="height:4px;background:var(--border);border-radius:2px;overflow:hidden;margin-top:5px"><div style="height:100%;width:${pct}%;background:${s.color};border-radius:2px"></div></div></div><div style="text-align:right;flex-shrink:0"><div style="font-size:12px;font-weight:700;font-family:'Space Mono',monospace">${d.cnt}x</div><div style="font-size:11px;color:var(--gold-text);font-family:'Space Mono',monospace">${fmtK(d.total)}</div></div></div>`;}).join('');
+  mixEl.innerHTML=sorted.map(([id,d],i)=>{const s=getSvc(id,d.name);const pct=Math.round(d.cnt/maxC*100);return `<div class="svc-catalog-item" style="padding:10px 14px"><span style="font-size:10px;color:var(--ink3);font-family:'Space Mono',monospace;min-width:16px">${i+1}</span><div class="svc-color-dot" style="background:${s.color}"></div><div style="flex:1"><div style="font-size:13px;font-weight:500">${s.name}</div><div style="height:4px;background:var(--border);border-radius:2px;overflow:hidden;margin-top:5px"><div style="height:100%;width:${pct}%;background:${s.color};border-radius:2px"></div></div></div><div style="text-align:right;flex-shrink:0"><div style="font-size:12px;font-weight:700;font-family:'Space Mono',monospace">${d.cnt}x</div><div style="font-size:11px;color:var(--gold-text);font-family:'Space Mono',monospace">${fmtK(d.total)}</div></div></div>`;}).join('');
 }
 
 // ── HISTORIAL ──
@@ -1700,6 +1701,8 @@ function processImportData(data){
       // 2) Remap each incoming log entry's svcId to the correct local service id,
       //    then append TODOS los registros del JSON tal cual vienen, sin fusionar
       //    ni descartar ninguno: cada JSON es un mes completo y debe importarse íntegro.
+      const incomingNameById={};
+      (data.services||[]).forEach(s=>{incomingNameById[s.id]=s.name;});
       const existingIds=new Set(logEntries.map(e=>e.id));
       const newEntries=(data.logEntries||[]).map(e=>{
         const localSvcId=incomingIdToLocalId[e.svcId]||e.svcId;
@@ -1713,7 +1716,8 @@ function processImportData(data){
           time:e.time||'00:00',
           svcId:localSvcId,
           price:e.price||0,
-          note:e.note||''
+          note:e.note||'',
+          serviceNameSnapshot:incomingNameById[e.svcId]||e.service_name||null
         };
       });
 
@@ -1882,7 +1886,7 @@ function renderPropinas(){
     const entries=byDay[d].slice().sort((a,b)=>a.time.localeCompare(b.time));
     const dayTotal=entries.reduce((s,e)=>s+e.tip,0);
     const rows=entries.map(e=>{
-      const s=getSvc(e.svcId);
+      const s=getSvc(e.svcId,e.serviceNameSnapshot);
       return `<div class="svc-hist-item">
         <div class="svc-hist-datetime"><div class="svc-hist-time-big">${e.time||'—'}</div></div>
         <div class="svc-hist-dot" style="background:${s.color}"></div>
@@ -2358,7 +2362,8 @@ function confirmReviewEntries(){
       time:r.time,
       svcId,
       price:r.price,
-      note:r.note
+      note:r.note,
+      serviceNameSnapshot:r.svcName
     },()=>'photo_'+Math.random().toString(36).slice(2,10));
     if(result==='updated')updated++;else added++;
   });

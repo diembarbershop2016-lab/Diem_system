@@ -137,8 +137,9 @@ app.post('/api/change-pin', requireAuth, async (req, res) => {
 app.get('/api/state', requireAuth, async (req, res) => {
   const [servicesRes, entriesRes, settingsRes] = await Promise.all([
     pool.query('SELECT id, name, price, duration, color FROM services ORDER BY name'),
-    pool.query(`SELECT id, service_id AS "svcId", to_char(date, 'YYYY-MM-DD') AS date,
-                       to_char(time, 'HH24:MI') AS time, price, tip, note
+    pool.query(`SELECT id, service_id AS "svcId", service_name_snapshot AS "serviceNameSnapshot",
+                       to_char(date, 'YYYY-MM-DD') AS date, to_char(time, 'HH24:MI') AS time,
+                       price, tip, note
                 FROM log_entries ORDER BY date, time`),
     pool.query("SELECT key, value FROM settings WHERE key IN ('barber_name','barber_sub','logo_data')"),
   ]);
